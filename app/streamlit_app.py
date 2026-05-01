@@ -249,6 +249,10 @@ def render_override(case_id: str) -> None:
 
 def main() -> None:
     st.set_page_config(page_title="ED Triage Support", layout="wide")
+    st.caption(
+        "🩺 **Public demo** — renders pre-generated assessments from `outputs/assessments/*.json`. "
+        "Run locally with `python -m app.engine` to regenerate against live Claude."
+    )
     patients = load_patients()
     ed_state = load_ed_state()
 

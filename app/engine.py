@@ -83,7 +83,7 @@ def wrap_assessment(patient: dict, body: dict) -> dict:
 
 def main(case_filter: str | None = None) -> None:
     if not os.environ.get("ANTHROPIC_API_KEY"):
-        sys.exit("ANTHROPIC_API_KEY not set. Activate per CLAUDE.md, then re-run.")
+        sys.exit("ANTHROPIC_API_KEY not set. Export it (e.g. `export ANTHROPIC_API_KEY=sk-ant-...`) and re-run.")
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     patients, ed_state, guidelines = load_inputs()
