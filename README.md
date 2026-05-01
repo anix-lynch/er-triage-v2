@@ -4,15 +4,13 @@ Decision-support assistant for ED triage. Renders the locked layout in [DASHBOAR
 
 > **Decision support, not decision.** Cited rules, not opinions. Logged overrides, not a black box.
 
-## Demo
+## 🚀 Live demo
 
-Once `streamlit run` is up, open:
-
-**→ http://localhost:8501**
+**→ https://anix-lynch-er-appstreamlit-app-pmcbnk.streamlit.app/**
 
 Sidebar lists 12 cases. Try **ER-0042** (chest pain, 🔴 NOW), **ER-0046** (finger lac, 🟢 WAIT), **ER-0049** (RLQ pain, 🟡 SOON), and the two adversarial cases **ER-0052 / ER-0053** to see how the assistant won't let normal-looking vitals or patient reassurance down-triage a real red flag.
 
-## Run
+## Run locally
 
 ```bash
 pip install -r requirements.txt
