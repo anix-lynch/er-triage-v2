@@ -1,0 +1,213 @@
+{
+  "case_id": "ER-0045",
+  "patient_id": "P004",
+  "encounter": {
+    "arrival_time": "2026-05-01T09:02:00"
+  },
+  "patient": {
+    "age": 29,
+    "sex": "M"
+  },
+  "urgency": {
+    "tier": "soon",
+    "confidence": "high",
+    "info_gaps": [
+      "lactate level",
+      "WBC/CBC",
+      "chest x-ray findings",
+      "blood cultures pending"
+    ]
+  },
+  "constraints": {
+    "resource": [
+      {
+        "item": "monitored_beds_free",
+        "value": 1,
+        "note": "tight — reserve for higher-acuity now-tier patients"
+      },
+      {
+        "item": "standard_beds_free",
+        "value": 4,
+        "note": "adequate for this patient"
+      },
+      {
+        "item": "md_available",
+        "value": 1,
+        "note": "single MD covering — prioritize now-tier first"
+      }
+    ],
+    "time": [
+      {
+        "item": "current_wait_min",
+        "value": 8
+      },
+      {
+        "item": "sepsis_abx_target_min",
+        "value": 60,
+        "note": "if sepsis confirmed, antibiotics within 1h"
+      }
+    ],
+    "warnings": [
+      "Sepsis screen positive: T 39.4 (>38) + HR 98 (>90) — 2 SIRS criteria with suspected pneumonia",
+      "Asthma history — monitor for bronchospasm/decompensation",
+      "Three now-tier patients ahead in queue; ensure this patient is not lost in soon-tier backlog"
+    ]
+  },
+  "hypotheses": [
+    {
+      "name": "Community-acquired pneumonia (right lower lobe)",
+      "confidence": "high",
+      "supporting_signals": [
+        "fever 39.4",
+        "productive yellow sputum x4 days",
+        "right lower lobe crackles on exam",
+        "SpO2 96% (mild)"
+      ]
+    },
+    {
+      "name": "Sepsis (pneumonia source)",
+      "confidence": "medium",
+      "supporting_signals": [
+        "T 39.4",
+        "HR 98 (>90)",
+        "suspected pulmonary infection — meets 2 SIRS criteria"
+      ],
+      "rules_against": [
+        "BP normal 118/72",
+        "RR 18 (not >20)",
+        "alert/oriented, no AMS",
+        "SpO2 96%"
+      ]
+    },
+    {
+      "name": "Asthma exacerbation triggered by infection",
+      "confidence": "low",
+      "supporting_signals": [
+        "asthma history",
+        "prior visit for exacerbation"
+      ],
+      "rules_against": [
+        "no SOB reported",
+        "no wheezing noted (crackles instead)",
+        "SpO2 96%",
+        "speaking normally"
+      ]
+    }
+  ],
+  "actions": {
+    "immediate": [],
+    "monitor": [
+      {
+        "emoji": "🟢",
+        "action": "CBC, BMP, lactate, blood cultures x2, CXR; reassess vitals q30min including SpO2 trend",
+        "reason": "Workup for pneumonia + sepsis screen; lactate clarifies severity tier."
+      },
+      {
+        "emoji": "🟢",
+        "action": "IV access, antipyretic (acetaminophen), start empiric CAP antibiotics within 1h if sepsis criteria persist",
+        "reason": "Two SIRS criteria with suspected pneumonia — meets sepsis screen threshold per R-SEPSIS-01."
+      }
+    ],
+    "escalate_or_redirect": [
+      {
+        "emoji": "🟡",
+        "action": "Flag to charge nurse: sepsis-screen-positive in soon-tier — protect against queue drift",
+        "reason": "Conservative bias: borderline ESI 2 vs 3; ensure 1h antibiotic clock not missed behind 3 now-tier cases.",
+        "constraints_checked": [
+          {
+            "check": "altered mental status",
+            "result": "absent — alert",
+            "source": "nurse_notes"
+          },
+          {
+            "check": "hypotension",
+            "result": "absent — SBP 118",
+            "source": "vitals"
+          },
+          {
+            "check": "hypoxia",
+            "result": "absent — SpO2 96%",
+            "source": "vitals"
+          }
+        ]
+      }
+    ]
+  },
+  "explanation": {
+    "summary": "29M with 4 days of fever (39.4), productive cough, and focal RLL crackles — clinical pneumonia. Vitals stable (BP 118/72, SpO2 96%, RR 18) but meets 2 SIRS criteria (T>38, HR>90 borderline at 98) with a suspected infectious source, so the sepsis screen is positive and needs labs + antibiotics within the 1h window. No AMS, hypotension, or hypoxia → does not meet ESI 2 high-risk threshold. Tier: soon (ESI 3) — needs ≥2 resources (labs + imaging + IV abx) but is hemodynamically stable. Asthma history warrants respiratory monitoring but no current bronchospasm.",
+    "citations": [
+      {
+        "rule_id": "R-ESI-T3",
+        "signal": "stable vitals, needs labs + CXR + IV abx (≥2 resources)"
+      },
+      {
+        "rule_id": "R-SEPSIS-01",
+        "signal": "suspected pneumonia + T>38 + HR>90 → sepsis screen positive, abx within 1h"
+      }
+    ]
+  },
+  "checklist": [
+    {
+      "task": "Place IV, draw CBC/BMP/lactate/blood cultures x2",
+      "owner": "rn",
+      "deadline": "<30min",
+      "status": "pending"
+    },
+    {
+      "task": "Order portable CXR",
+      "owner": "physician",
+      "deadline": "<30min",
+      "status": "pending"
+    },
+    {
+      "task": "Administer acetaminophen for fever",
+      "owner": "rn",
+      "deadline": "<30min",
+      "status": "pending"
+    },
+    {
+      "task": "Start empiric CAP antibiotics if sepsis criteria persist after lactate result",
+      "owner": "physician",
+      "deadline": "<60min",
+      "status": "pending"
+    },
+    {
+      "task": "Reassess vitals q30min — escalate if SpO2 drops <92, SBP <100, or new AMS",
+      "owner": "rn",
+      "deadline": "ongoing",
+      "status": "pending"
+    },
+    {
+      "task": "Confirm patient not stuck behind now-tier queue beyond 1h abx window",
+      "owner": "charge_nurse",
+      "deadline": "<30min",
+      "status": "pending"
+    }
+  ],
+  "review_note": {
+    "tier_chosen": "soon",
+    "alternative_tier": "now",
+    "confidence_in_call": "high",
+    "why_this_tier": [
+      "Hemodynamically stable: BP 118/72, SpO2 96%, RR 18, alert",
+      "No vital red flag triggered (no hypotension, hypoxia, or tachycardia >110)",
+      "Sepsis screen positive but without organ dysfunction signs — fits ESI 3 with workup",
+      "Needs ≥2 resources (labs + imaging + IV meds) → R-ESI-T3"
+    ],
+    "would_upgrade_if": [
+      "SpO2 drops <92% on room air",
+      "SBP <100 or HR sustained >110",
+      "Lactate ≥2 or new altered mental status",
+      "Develops respiratory distress / accessory muscle use (asthma overlay)"
+    ],
+    "would_downgrade_if": [
+      "CXR negative AND lactate normal AND fever responds to acetaminophen — could trend toward viral URI/bronchitis, but still ESI 3 given abnormal exam"
+    ],
+    "subject_to_review": true
+  },
+  "meta": {
+    "model": "claude-opus-4-7",
+    "rule_pack": "esi-v4-2026-05",
+    "generated_at": "2026-05-01T19:38:21.883292+00:00"
+  }
+}

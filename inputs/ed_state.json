@@ -1,0 +1,108 @@
+{
+  "as_of": "2026-05-01T10:34:00",
+  "beds": {
+    "total": 12,
+    "occupied": 8,
+    "free": 4
+  },
+  "monitored_beds": {
+    "total": 4,
+    "occupied": 3,
+    "free": 1
+  },
+  "staffing": {
+    "rn": {
+      "on_shift": 4,
+      "available": 3
+    },
+    "md": {
+      "on_shift": 2,
+      "available": 1
+    }
+  },
+  "wait_time_min": 38,
+  "on_call": {
+    "cardiology": {
+      "available": true,
+      "eta_min": 15
+    },
+    "neurology": {
+      "available": true,
+      "eta_min": 25
+    },
+    "surgery": {
+      "available": true,
+      "eta_min": 20
+    }
+  },
+  "queue": [
+    {
+      "case_id": "ER-0042",
+      "patient_id": "P001",
+      "wait_min": 12
+    },
+    {
+      "case_id": "ER-0043",
+      "patient_id": "P002",
+      "wait_min": 18
+    },
+    {
+      "case_id": "ER-0044",
+      "patient_id": "P003",
+      "wait_min": 5
+    },
+    {
+      "case_id": "ER-0045",
+      "patient_id": "P004",
+      "wait_min": 8
+    },
+    {
+      "case_id": "ER-0046",
+      "patient_id": "P005",
+      "wait_min": 15
+    },
+    {
+      "case_id": "ER-0047",
+      "patient_id": "P006",
+      "wait_min": 4
+    },
+    {
+      "case_id": "ER-0048",
+      "patient_id": "P007",
+      "wait_min": 6
+    },
+    {
+      "case_id": "ER-0049",
+      "patient_id": "P008",
+      "wait_min": 10
+    },
+    {
+      "case_id": "ER-0050",
+      "patient_id": "P009",
+      "wait_min": 7
+    },
+    {
+      "case_id": "ER-0051",
+      "patient_id": "P010",
+      "wait_min": 9
+    },
+    {
+      "case_id": "ER-0052",
+      "patient_id": "P011",
+      "wait_min": 3
+    },
+    {
+      "case_id": "ER-0053",
+      "patient_id": "P012",
+      "wait_min": 2
+    }
+  ],
+  "sla_breaches": [
+    {
+      "case_id": "ER-0042",
+      "metric": "door-to-ECG",
+      "target_min": 10,
+      "actual_min": 12
+    }
+  ]
+}

@@ -1,0 +1,253 @@
+{
+  "case_id": "ER-0044",
+  "patient_id": "P003",
+  "encounter": {
+    "arrival_time": "2026-05-01T08:33:00"
+  },
+  "patient": {
+    "age": 44,
+    "sex": "F"
+  },
+  "urgency": {
+    "tier": "now",
+    "confidence": "high",
+    "info_gaps": [
+      "GCS / mental status detail",
+      "exact time of headache onset and time-to-peak",
+      "neuro exam (focal deficits, NIHSS)",
+      "pregnancy status"
+    ]
+  },
+  "constraints": {
+    "resource": [
+      {
+        "item": "monitored_bed",
+        "free": 1,
+        "note": "last monitored bed — likely needed for this patient"
+      },
+      {
+        "item": "md_available",
+        "free": 1
+      },
+      {
+        "item": "neurology_on_call",
+        "eta_min": 25
+      }
+    ],
+    "time": [
+      {
+        "item": "CT head non-contrast",
+        "target": "STAT / <25 min from arrival",
+        "status": "pending"
+      },
+      {
+        "item": "current_wait_min",
+        "value": 5
+      }
+    ],
+    "warnings": [
+      "Only 1 monitored bed remaining — allocate to this patient",
+      "BP 178/102 — do NOT aggressively lower until SAH/stroke ruled out (per R-STROKE-01 threshold 220/120)",
+      "3 other 'now' tier patients in queue with only 1 MD available — charge nurse must prioritize"
+    ]
+  },
+  "hypotheses": [
+    {
+      "name": "Subarachnoid hemorrhage (SAH)",
+      "confidence": "high",
+      "supporting_signals": [
+        "sudden severe headache, 'worst of life'",
+        "vomited once",
+        "neck stiffness",
+        "photophobia",
+        "patient states this is different from her usual migraines",
+        "hypertensive (178/102) and tachycardic (104)"
+      ]
+    },
+    {
+      "name": "Migraine exacerbation",
+      "confidence": "low",
+      "supporting_signals": [
+        "history of migraine",
+        "photophobia",
+        "vomiting"
+      ],
+      "rules_against": [
+        "patient explicitly reports this is different from her usual migraines",
+        "thunderclap quality and neck stiffness are red flags not typical of migraine",
+        "must not be assumed until SAH excluded by CT ± LP"
+      ]
+    },
+    {
+      "name": "Meningitis / CNS infection",
+      "confidence": "low",
+      "supporting_signals": [
+        "neck stiffness",
+        "photophobia",
+        "vomiting"
+      ],
+      "rules_against": [
+        "afebrile (36.7°C)",
+        "abrupt thunderclap onset more consistent with vascular etiology"
+      ]
+    },
+    {
+      "name": "Acute ischemic stroke / hypertensive emergency",
+      "confidence": "low",
+      "supporting_signals": [
+        "BP 178/102",
+        "severe headache"
+      ],
+      "rules_against": [
+        "no focal deficit reported in nurse note",
+        "neuro exam not yet documented"
+      ]
+    }
+  ],
+  "actions": {
+    "immediate": [
+      {
+        "emoji": "🔴",
+        "action": "CT head non-contrast STAT; place in monitored bed with IV access and continuous monitoring",
+        "reason": "Thunderclap headache with meningismus and vomiting — SAH must be excluded immediately.",
+        "constraints_checked": [
+          {
+            "check": "monitored bed available",
+            "result": "yes (1 free)",
+            "source": "ed_state.monitored_beds"
+          },
+          {
+            "check": "BP threshold for treatment",
+            "result": "178/102 — below 220/120, do not lower per R-STROKE-01",
+            "source": "vitals"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Bedside neuro exam (GCS, NIHSS, cranial nerves, fundoscopy) and finger-stick glucose now",
+        "reason": "Establish baseline neuro status before imaging and detect focal deficit suggesting stroke."
+      },
+      {
+        "emoji": "🔴",
+        "action": "Hold sumatriptan and any vasoconstrictors; antiemetic (e.g., ondansetron) and analgesia per MD",
+        "reason": "Triptans contraindicated until SAH/stroke excluded; symptom control without masking exam.",
+        "constraints_checked": [
+          {
+            "check": "allergies",
+            "result": "none documented",
+            "source": "patient.allergies"
+          }
+        ]
+      }
+    ],
+    "monitor": [
+      {
+        "emoji": "🟢",
+        "action": "Continuous cardiac monitoring + reassess vitals and neuro status q15 min until CT result",
+        "reason": "Detect rebleed, hydrocephalus, or deterioration in mental status."
+      },
+      {
+        "emoji": "🟢",
+        "action": "Send labs: CBC, BMP, coags/INR, type & screen; prepare for possible LP if CT negative",
+        "reason": "Standard pre-procedure labs and to support LP for xanthochromia if imaging non-diagnostic."
+      }
+    ],
+    "escalate_or_redirect": [
+      {
+        "emoji": "🟡",
+        "action": "Page neurology / neurosurgery on-call now (neuro ETA 25 min)",
+        "reason": "If CT confirms SAH, neurosurgical decision-making and BP/aneurysm management needed urgently."
+      }
+    ]
+  },
+  "explanation": {
+    "summary": "44F with abrupt 'worst-of-life' headache, vomiting, neck stiffness, photophobia, and hypertension — classic SAH presentation that the patient herself distinguishes from her prior migraines. Vitals show tachycardia and significant hypertension but no hypoxia or hypotension. Tier 'now' (ESI 2) with high-risk features warranting immediate CT head, monitored bed, and neuro consult. Conservative bias applied — migraine cannot be assumed.",
+    "citations": [
+      {
+        "rule_id": "R-SAH-01",
+        "signal": "thunderclap headache with neck stiffness, vomiting, photophobia"
+      },
+      {
+        "rule_id": "R-ESI-T2",
+        "signal": "high-risk presentation with severe pain 10/10 and concerning vitals"
+      },
+      {
+        "rule_id": "R-VITALS-TACHY",
+        "signal": "HR 104 — borderline, in context of severe pain/possible SAH"
+      },
+      {
+        "rule_id": "R-STROKE-01",
+        "signal": "BP 178/102 — below 220/120 threshold; severe headache mandates neuro workup"
+      }
+    ]
+  },
+  "checklist": [
+    {
+      "task": "Place patient in monitored bed, IV x2, labs drawn",
+      "owner": "rn",
+      "deadline": "now",
+      "status": "pending"
+    },
+    {
+      "task": "CT head non-contrast STAT",
+      "owner": "physician",
+      "deadline": "<25min",
+      "status": "pending"
+    },
+    {
+      "task": "Document GCS, NIHSS, full neuro exam",
+      "owner": "physician",
+      "deadline": "<15min",
+      "status": "pending"
+    },
+    {
+      "task": "Page neurology / neurosurgery on-call",
+      "owner": "charge_nurse",
+      "deadline": "now",
+      "status": "pending"
+    },
+    {
+      "task": "Reassess vitals and neuro q15min until imaging back",
+      "owner": "rn",
+      "deadline": "ongoing",
+      "status": "pending"
+    },
+    {
+      "task": "If CT negative and suspicion remains, prepare for LP (xanthochromia)",
+      "owner": "physician",
+      "deadline": "<60min",
+      "status": "pending"
+    },
+    {
+      "task": "Confirm last-known-well time and time-to-peak headache",
+      "owner": "rn",
+      "deadline": "<15min",
+      "status": "pending"
+    }
+  ],
+  "review_note": {
+    "tier_chosen": "now",
+    "alternative_tier": "soon",
+    "confidence_in_call": "high",
+    "why_this_tier": [
+      "Thunderclap headache with meningismus is a textbook SAH trigger per R-SAH-01",
+      "Patient explicitly states this differs from prior migraines — anchoring bias risk",
+      "Severe pain 10/10 with HTN and tachycardia meets R-ESI-T2 high-risk criterion"
+    ],
+    "would_downgrade_if": [
+      "CT head negative AND LP without xanthochromia AND headache fully resolves with migraine-typical course",
+      "Patient confirms identical character to prior migraines on further questioning and exam fully reassuring"
+    ],
+    "would_upgrade_if": [
+      "Any focal neurologic deficit, declining GCS, seizure, or new hypotension",
+      "BP rises >220/120 or signs of herniation"
+    ],
+    "subject_to_review": true
+  },
+  "meta": {
+    "model": "claude-opus-4-7",
+    "rule_pack": "esi-v4-2026-05",
+    "generated_at": "2026-05-01T19:37:45.804399+00:00"
+  }
+}

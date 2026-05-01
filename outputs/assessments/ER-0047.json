@@ -1,0 +1,251 @@
+{
+  "case_id": "ER-0047",
+  "patient_id": "P006",
+  "encounter": {
+    "arrival_time": "2026-05-01T09:25:00"
+  },
+  "patient": {
+    "age": 71,
+    "sex": "M"
+  },
+  "urgency": {
+    "tier": "now",
+    "confidence": "high"
+  },
+  "constraints": {
+    "resource": [
+      {
+        "monitored_beds_free": 1
+      },
+      {
+        "md_available": 1
+      },
+      {
+        "rn_available": 3
+      },
+      {
+        "neurology_eta_min": 25
+      }
+    ],
+    "time": [
+      {
+        "last_known_well_min": 40,
+        "tpa_window_min": 270,
+        "window_remaining_min": 230
+      }
+    ],
+    "warnings": [
+      "Only 1 monitored bed free — protect for this patient",
+      "Patient on apixaban: hemorrhagic stroke must be ruled out before any thrombolytic consideration",
+      "Do NOT lower BP unless >220/120 per stroke protocol"
+    ]
+  },
+  "hypotheses": [
+    {
+      "name": "Acute ischemic stroke (LVO possible)",
+      "confidence": "high",
+      "supporting_signals": [
+        "sudden focal deficit: right facial droop, right arm weakness, slurred speech",
+        "confusion/AMS",
+        "last-known-well 40 min ago — within 4.5h tPA window",
+        "AFib (cardioembolic risk)",
+        "age 71, HTN"
+      ]
+    },
+    {
+      "name": "Intracranial hemorrhage (ICH) on DOAC",
+      "confidence": "medium",
+      "supporting_signals": [
+        "apixaban therapy",
+        "acute focal deficit",
+        "elevated BP 162/94"
+      ],
+      "rules_against": [
+        "no reported trauma",
+        "no thunderclap headache reported"
+      ]
+    },
+    {
+      "name": "Subarachnoid hemorrhage",
+      "confidence": "low",
+      "supporting_signals": [
+        "acute neuro change on anticoagulant"
+      ],
+      "rules_against": [
+        "no headache reported",
+        "no neck stiffness",
+        "no vomiting"
+      ]
+    },
+    {
+      "name": "Hypoglycemia / metabolic mimic",
+      "confidence": "low",
+      "supporting_signals": [
+        "confusion"
+      ],
+      "rules_against": [
+        "clear focal lateralizing deficit",
+        "fingerstick not yet done — must rule out"
+      ]
+    }
+  ],
+  "actions": {
+    "immediate": [
+      {
+        "emoji": "🔴",
+        "action": "Activate stroke team; CT head non-contrast STAT + CTA head/neck",
+        "reason": "Focal deficit + LKW 40 min — within tPA/thrombectomy window; must distinguish ischemic vs hemorrhagic given apixaban.",
+        "constraints_checked": [
+          {
+            "check": "anticoagulant status",
+            "result": "on apixaban — DOAC reversal (andexanet/4F-PCC) on standby if ICH",
+            "source": "medications"
+          },
+          {
+            "check": "last-known-well",
+            "result": "40 min — within 4.5h window",
+            "source": "nurse_notes"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Place in monitored bed, IV x2, fingerstick glucose, NIHSS, labs (CBC, BMP, coags, type & screen)",
+        "reason": "Stroke workup bundle; fingerstick rules out hypoglycemic mimic before imaging.",
+        "constraints_checked": [
+          {
+            "check": "monitored bed availability",
+            "result": "1 free — assign now",
+            "source": "ed_state.monitored_beds"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Hold antihypertensives; do NOT lower BP unless >220/120",
+        "reason": "Per stroke protocol BP 162/94 is permissive; lowering risks penumbra hypoperfusion.",
+        "constraints_checked": [
+          {
+            "check": "BP threshold",
+            "result": "162/94 — below 220/120 cutoff",
+            "source": "vitals"
+          }
+        ]
+      }
+    ],
+    "monitor": [
+      {
+        "emoji": "🟢",
+        "action": "Serial neuro checks q15 min and continuous cardiac monitoring (AFib)",
+        "reason": "Detect deterioration / hemorrhagic conversion; AFib rhythm surveillance."
+      },
+      {
+        "emoji": "🟢",
+        "action": "Track CT result and coag panel turnaround",
+        "reason": "Drives tPA/thrombectomy vs reversal decision branch."
+      }
+    ],
+    "escalate_or_redirect": [
+      {
+        "emoji": "🟡",
+        "action": "Page neurology now (ETA 25 min) and alert interventional/thrombectomy-capable center",
+        "reason": "Stroke decision is specialty-driven; possible LVO transfer if CTA confirms.",
+        "constraints_checked": [
+          {
+            "check": "neuro on-call",
+            "result": "available, ETA 25 min",
+            "source": "ed_state.on_call.neurology"
+          }
+        ]
+      }
+    ]
+  },
+  "explanation": {
+    "summary": "71M on apixaban with sudden right-sided facial droop, right arm weakness, slurred speech, confusion; LKW 40 min ago. Classic acute stroke presentation within tPA/thrombectomy window. ESI 1 — stroke alert. DOAC complicates thrombolysis and raises ICH probability; CT head STAT is the pivot. BP permissive at 162/94. Vitals otherwise stable. Protect the one free monitored bed for this patient.",
+    "citations": [
+      {
+        "rule_id": "R-STROKE-01",
+        "signal": "sudden focal deficit (face droop, arm weakness, slurred speech) + LKW 40 min"
+      },
+      {
+        "rule_id": "R-ESI-T2",
+        "signal": "confused/disoriented + high-risk situation"
+      },
+      {
+        "rule_id": "R-ESI-T1",
+        "signal": "potential need for life-saving intervention (tPA/thrombectomy)"
+      },
+      {
+        "rule_id": "R-HEAD-ANTICOAG-01",
+        "signal": "patient on apixaban — CT head STAT regardless, ICH must be excluded"
+      }
+    ]
+  },
+  "checklist": [
+    {
+      "task": "Stroke alert activation + CT scanner cleared",
+      "owner": "charge_nurse",
+      "deadline": "now",
+      "status": "pending"
+    },
+    {
+      "task": "CT head non-contrast (and CTA head/neck) completed within 25 min of arrival",
+      "owner": "physician",
+      "deadline": "<25min",
+      "status": "pending"
+    },
+    {
+      "task": "Fingerstick glucose, NIHSS documented, two IVs, stroke labs drawn",
+      "owner": "rn",
+      "deadline": "<10min",
+      "status": "pending"
+    },
+    {
+      "task": "Neurology consult at bedside / tele-stroke",
+      "owner": "specialist",
+      "deadline": "<25min",
+      "status": "pending"
+    },
+    {
+      "task": "Confirm last apixaban dose timing with wife (anti-Xa level if <15h)",
+      "owner": "rn",
+      "deadline": "<15min",
+      "status": "pending"
+    },
+    {
+      "task": "Reassess neuro exam q15 min until disposition",
+      "owner": "rn",
+      "deadline": "ongoing",
+      "status": "pending"
+    },
+    {
+      "task": "Identify thrombectomy-capable transfer destination if LVO",
+      "owner": "physician",
+      "deadline": "<30min",
+      "status": "pending"
+    }
+  ],
+  "review_note": {
+    "tier_chosen": "now",
+    "alternative_tier": "now",
+    "confidence_in_call": "high",
+    "why_this_tier": [
+      "Acute focal neuro deficit within tPA window",
+      "Anticoagulated — ICH risk demands STAT imaging",
+      "Confusion/AMS meets ESI 2 high-risk criterion independently",
+      "Time-critical: every minute = ~1.9M neurons"
+    ],
+    "would_upgrade_if": [
+      "GCS drop, new vomiting, BP >220/120, or airway compromise (already at top tier)"
+    ],
+    "would_downgrade_if": [
+      "Symptoms fully resolved (TIA) AND CT/CTA negative AND glucose normal — still stays 'now' for stroke workup, would not actually downgrade in ED"
+    ],
+    "subject_to_review": true
+  },
+  "meta": {
+    "model": "claude-opus-4-7",
+    "rule_pack": "esi-v4-2026-05",
+    "generated_at": "2026-05-01T19:39:26.850995+00:00"
+  }
+}

@@ -1,0 +1,29 @@
+# env / secrets
+.env
+.env.*
+*.env
+!.env.example
+secrets/
+
+# python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# os
+.DS_Store
+Thumbs.db
+
+# editor
+.idea/
+.vscode/
+*.swp
+
+# project-local
+_archive/

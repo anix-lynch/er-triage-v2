@@ -1,0 +1,169 @@
+{
+  "case_id": "ER-0043",
+  "patient_id": "P002",
+  "encounter": {
+    "arrival_time": "2026-05-01T08:21:00"
+  },
+  "patient": {
+    "age": 17,
+    "sex": "F"
+  },
+  "urgency": {
+    "tier": "wait",
+    "confidence": "high",
+    "info_gaps": [
+      "neurovascular status of foot (cap refill, distal pulses, sensation)",
+      "Ottawa ankle rule exam findings (bony tenderness at malleoli/navicular/5th MT)"
+    ]
+  },
+  "constraints": {
+    "resource": [
+      {
+        "note": "4 of 12 general beds free — no resource pressure for low-acuity ortho"
+      },
+      {
+        "note": "1 monitored bed free — reserve for higher-acuity queue (3 'now' tier patients waiting)"
+      }
+    ],
+    "time": [
+      {
+        "note": "Current wait 18 min; acceptable for ESI 4"
+      },
+      {
+        "note": "3 'now' tier patients ahead — this case should not jump queue"
+      }
+    ],
+    "warnings": [
+      "Do not displace higher-acuity patients for ankle x-ray; fast-track or minor-care pathway preferred"
+    ]
+  },
+  "hypotheses": [
+    {
+      "name": "Lateral ankle sprain (grade I-II)",
+      "confidence": "high",
+      "supporting_signals": [
+        "mechanism: twisting injury during soccer",
+        "lateral swelling",
+        "able to bear partial weight",
+        "no deformity",
+        "ROM limited by pain only",
+        "normal vitals",
+        "pain 5/10"
+      ]
+    },
+    {
+      "name": "Lateral malleolus / distal fibula fracture",
+      "confidence": "low",
+      "supporting_signals": [
+        "swelling at lateral ankle",
+        "twisting mechanism"
+      ],
+      "rules_against": [
+        "partial weight-bearing preserved",
+        "no obvious deformity",
+        "Ottawa criteria not yet documented as positive"
+      ]
+    },
+    {
+      "name": "5th metatarsal avulsion fracture",
+      "confidence": "very_low",
+      "supporting_signals": [
+        "inversion mechanism possible"
+      ],
+      "rules_against": [
+        "nurse note localizes swelling to lateral ankle, not midfoot",
+        "no midfoot tenderness documented"
+      ]
+    }
+  ],
+  "actions": {
+    "immediate": [],
+    "monitor": [
+      {
+        "emoji": "🟢",
+        "action": "Apply RICE (rest, ice, compression, elevation) and offer PO analgesia (acetaminophen or ibuprofen) while awaiting room",
+        "reason": "Comfort measures and pain control appropriate for low-acuity musculoskeletal injury during wait."
+      },
+      {
+        "emoji": "🟢",
+        "action": "Apply Ottawa Ankle Rules to determine if x-ray (single resource) is needed",
+        "reason": "Decision rule determines whether this is ESI 4 (1 resource) vs ESI 5 (no resource); affects pathway."
+      }
+    ],
+    "escalate_or_redirect": [
+      {
+        "emoji": "🟡",
+        "action": "Redirect to fast-track / minor-care area when room available",
+        "reason": "Stable isolated extremity injury; ED main beds should be preserved for the 3 'now'-tier patients in queue."
+      }
+    ]
+  },
+  "explanation": {
+    "summary": "17yo healthy female with isolated right lateral ankle injury, partial weight-bearing, normal vitals, pain 5/10. No red flags. Likely needs ≤1 resource (ankle x-ray if Ottawa-positive). Appropriate for ESI 4 / 'wait' tier and fast-track disposition. Three higher-acuity 'now' patients are queued — this case should not preempt them.",
+    "citations": [
+      {
+        "rule_id": "R-ESI-T4",
+        "signal": "stable vitals, likely single resource (ankle x-ray) per Ottawa rules"
+      },
+      {
+        "rule_id": "R-ESI-T5",
+        "signal": "alternative if Ottawa-negative — clinical exam + wrap, no imaging required"
+      }
+    ]
+  },
+  "checklist": [
+    {
+      "task": "Apply Ottawa Ankle Rules; document bony tenderness at posterior malleoli, navicular, base of 5th MT, and weight-bearing ability (4 steps)",
+      "owner": "rn",
+      "deadline": "<30min"
+    },
+    {
+      "task": "Provide ice pack, elevate limb, offer PO ibuprofen 400mg or acetaminophen 650mg (no allergies on file)",
+      "owner": "rn",
+      "deadline": "<15min"
+    },
+    {
+      "task": "If Ottawa-positive → order 3-view ankle x-ray; if negative → clinical exam by MD and discharge planning",
+      "owner": "physician",
+      "deadline": "<60min"
+    },
+    {
+      "task": "Reassess pain score and neurovascular status (distal pulses, cap refill, sensation) before disposition",
+      "owner": "rn",
+      "deadline": "ongoing"
+    },
+    {
+      "task": "Discharge with RICE instructions, crutches PRN, return precautions, and PCP/sports-med follow-up",
+      "owner": "physician",
+      "deadline": "shift_end"
+    }
+  ],
+  "review_note": {
+    "tier_chosen": "wait",
+    "alternative_tier": "soon",
+    "confidence_in_call": "high",
+    "why_this_tier": [
+      "Normal vitals across the board",
+      "Mechanism is low-energy isolated extremity",
+      "Patient bearing partial weight (reassuring against unstable fracture)",
+      "No head/spine involvement, no other injury reported",
+      "Expected resource use: 0-1 (x-ray only)"
+    ],
+    "would_upgrade_if": [
+      "Inability to bear any weight or gross deformity discovered on exam",
+      "Neurovascular compromise (absent pulse, cool foot, paresthesia)",
+      "Open fracture or skin tenting",
+      "Pain escalates to ≥7/10 or vitals become abnormal",
+      "Mechanism reveals higher-energy trauma (e.g., concurrent head strike)"
+    ],
+    "would_downgrade_if": [
+      "Ottawa Ankle Rules negative AND exam fully reassuring → could be ESI 5 (no resource, simple wrap and discharge)"
+    ],
+    "subject_to_review": true
+  },
+  "meta": {
+    "model": "claude-opus-4-7",
+    "rule_pack": "esi-v4-2026-05",
+    "generated_at": "2026-05-01T19:37:04.451843+00:00"
+  }
+}

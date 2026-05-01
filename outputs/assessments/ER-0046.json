@@ -1,0 +1,147 @@
+{
+  "case_id": "ER-0046",
+  "patient_id": "P005",
+  "encounter": {
+    "arrival_time": "2026-05-01T09:11:00"
+  },
+  "patient": {
+    "age": 34,
+    "sex": "F"
+  },
+  "urgency": {
+    "tier": "wait",
+    "confidence": "high",
+    "info_gaps": [
+      "wound exploration for tendon/nerve involvement",
+      "neurovascular status of distal finger"
+    ]
+  },
+  "constraints": {
+    "resource": [
+      {
+        "item": "free_beds",
+        "value": 4,
+        "note": "adequate"
+      },
+      {
+        "item": "rn_available",
+        "value": 3,
+        "note": "adequate"
+      },
+      {
+        "item": "md_available",
+        "value": 1,
+        "note": "tight — multiple 'now' tier patients in queue"
+      }
+    ],
+    "time": [
+      {
+        "item": "wait_time_min",
+        "value": 38,
+        "note": "patient already waiting; low-acuity, acceptable"
+      }
+    ],
+    "warnings": [
+      "Three 'now' tier patients ahead in queue — this case must not displace them",
+      "Tetanus booster status: last 4y ago, within 5y window, no booster needed for clean wound"
+    ]
+  },
+  "hypotheses": [
+    {
+      "name": "Simple finger laceration (clean, controlled)",
+      "confidence": "high",
+      "supporting_signals": [
+        "2cm clean-edged lac",
+        "bleeding controlled",
+        "normal vitals",
+        "pain 2/10",
+        "no medications/anticoagulants"
+      ]
+    },
+    {
+      "name": "Occult tendon/nerve/vascular injury",
+      "confidence": "low",
+      "supporting_signals": [
+        "mechanism: kitchen knife",
+        "L index finger location"
+      ],
+      "rules_against": [
+        "clean edges per nurse note",
+        "no functional deficit documented",
+        "bleeding self-limited"
+      ]
+    }
+  ],
+  "actions": {
+    "immediate": [],
+    "monitor": [
+      {
+        "emoji": "🟢",
+        "action": "Wound care: irrigate, explore for tendon/nerve involvement, close with sutures or skin adhesive",
+        "reason": "Single-resource visit (simple suture) consistent with ESI 4."
+      },
+      {
+        "emoji": "🟢",
+        "action": "Reassess neurovascular status of L index finger (cap refill, 2-point discrimination, flexion/extension)",
+        "reason": "Rule out occult tendon or digital nerve injury before closure."
+      }
+    ],
+    "escalate_or_redirect": []
+  },
+  "explanation": {
+    "summary": "34F with isolated 2cm clean finger laceration, bleeding controlled, normal vitals, no comorbidities or anticoagulants. Single-resource visit (suture). Safely waits behind higher-acuity patients; could also be redirected to fast-track if available.",
+    "citations": [
+      {
+        "rule_id": "R-ESI-T4",
+        "signal": "stable vitals + likely 1 resource (simple suture)"
+      }
+    ]
+  },
+  "checklist": [
+    {
+      "task": "Wound irrigation and exploration",
+      "owner": "rn",
+      "deadline": "<60min"
+    },
+    {
+      "task": "Physician closure (sutures/adhesive) and tendon/nerve exam documentation",
+      "owner": "physician",
+      "deadline": "<90min"
+    },
+    {
+      "task": "Confirm tetanus status — last booster 4y ago, no update needed for clean wound",
+      "owner": "rn",
+      "deadline": "<30min"
+    },
+    {
+      "task": "Discharge instructions: wound care, return precautions, suture removal timing",
+      "owner": "rn",
+      "deadline": "shift_end"
+    }
+  ],
+  "review_note": {
+    "tier_chosen": "wait",
+    "alternative_tier": "soon",
+    "confidence_in_call": "high",
+    "why_this_tier": [
+      "Stable vitals across the board",
+      "Single resource expected (suture only) — ESI 4 pattern",
+      "No red flags: no anticoagulants, no comorbidities, bleeding controlled, low pain",
+      "Three 'now' tier patients in queue must take priority"
+    ],
+    "would_upgrade_if": [
+      "Exam reveals tendon laceration, digital nerve deficit, or arterial bleeding",
+      "Wound found to be deeper/contaminated requiring imaging or OR consult",
+      "New vital sign abnormality on reassessment"
+    ],
+    "would_downgrade_if": [
+      "Wound suitable for skin adhesive only (no suture) — ESI 5 territory"
+    ],
+    "subject_to_review": true
+  },
+  "meta": {
+    "model": "claude-opus-4-7",
+    "rule_pack": "esi-v4-2026-05",
+    "generated_at": "2026-05-01T19:38:45.396015+00:00"
+  }
+}

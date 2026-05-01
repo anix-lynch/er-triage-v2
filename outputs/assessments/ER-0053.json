@@ -1,0 +1,281 @@
+{
+  "case_id": "ER-0053",
+  "patient_id": "P012",
+  "encounter": {
+    "arrival_time": "2026-05-01T10:48:00"
+  },
+  "patient": {
+    "age": 28,
+    "sex": "F"
+  },
+  "urgency": {
+    "tier": "now",
+    "confidence": "high",
+    "info_gaps": [
+      "lactate",
+      "repeat BP after positional change",
+      "menstrual/pregnancy status",
+      "recent infectious exposures",
+      "orthostatic vitals",
+      "trend HR/SpO2 over 10 min"
+    ]
+  },
+  "constraints": {
+    "resource": [
+      {
+        "item": "monitored_bed",
+        "free": 1,
+        "note": "only 1 monitored bed left — likely needed for this patient"
+      },
+      {
+        "item": "md_available",
+        "free": 1,
+        "note": "single MD available, workload tight"
+      }
+    ],
+    "time": [
+      {
+        "metric": "door-to-MD",
+        "target_min": 10,
+        "note": "ESI 2 should be roomed and seen immediately"
+      }
+    ],
+    "warnings": [
+      "Patient appearance (well, conversational) is sharply discordant with vitals — do NOT anchor on reassuring affect",
+      "Compensated shock physiology possible in young healthy adult; BP drop is a late sign",
+      "Patient wants to leave — flag AMA risk, do not allow discharge before workup"
+    ]
+  },
+  "hypotheses": [
+    {
+      "name": "Sepsis (occult source)",
+      "confidence": "high",
+      "supporting_signals": [
+        "T 38.7°C",
+        "HR 142",
+        "RR 26",
+        "SBP 88",
+        "SpO2 91%",
+        "meets ≥2 SIRS plus hypotension"
+      ],
+      "rules_against": [
+        "no localizing infectious symptoms reported",
+        "patient denies feeling ill"
+      ]
+    },
+    {
+      "name": "Exertional heat illness / dehydration with rhabdomyolysis",
+      "confidence": "medium",
+      "supporting_signals": [
+        "intense crossfit session",
+        "skipped lunch",
+        "tachycardia, hypotension, low-grade fever possible from exertion"
+      ],
+      "rules_against": [
+        "temp 38.7°C is high for pure exertional",
+        "SpO2 91% not explained by dehydration alone"
+      ]
+    },
+    {
+      "name": "Pulmonary embolism",
+      "confidence": "medium",
+      "supporting_signals": [
+        "SpO2 91%",
+        "tachycardia 142",
+        "RR 26",
+        "young female (consider OCP/pregnancy risk)"
+      ],
+      "rules_against": [
+        "no chest pain or dyspnea reported",
+        "no leg swelling noted"
+      ]
+    },
+    {
+      "name": "Occult hemorrhage (e.g., ruptured ectopic pregnancy)",
+      "confidence": "medium",
+      "supporting_signals": [
+        "young female",
+        "hypotension + tachycardia",
+        "well-appearing despite shock vitals = compensated"
+      ],
+      "rules_against": [
+        "no abdominal/pelvic pain reported",
+        "no reported vaginal bleeding"
+      ]
+    },
+    {
+      "name": "Vital sign artifact / measurement error",
+      "confidence": "low",
+      "supporting_signals": [
+        "patient looks completely well",
+        "ambulatory and joking"
+      ],
+      "rules_against": [
+        "multiple abnormal vitals concordant (HR, BP, RR, SpO2, T) — unlikely all artifact",
+        "must be disproven, not assumed"
+      ]
+    }
+  ],
+  "actions": {
+    "immediate": [
+      {
+        "emoji": "🔴",
+        "action": "Move to monitored bed NOW; continuous cardiac monitoring, supplemental O2 to keep SpO2 ≥94%, large-bore IV x2, draw labs (CBC, CMP, lactate, blood cultures x2, UA, β-hCG, troponin, coags, CK)",
+        "reason": "Meets sepsis screen and hypoxia/hypotension red flags despite well appearance — compensated shock until proven otherwise.",
+        "constraints_checked": [
+          {
+            "check": "monitored bed availability",
+            "result": "1 free — claim now",
+            "source": "ed_state.monitored_beds"
+          },
+          {
+            "check": "pregnancy status before imaging/meds",
+            "result": "unknown — order β-hCG",
+            "source": "patient history"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Begin 30 mL/kg crystalloid bolus (≈2L NS/LR) and repeat full vitals + orthostatics within 10 min; physician at bedside for sepsis bundle decision",
+        "reason": "SBP 88 + lactate pending; Surviving Sepsis bundle requires fluids and broad-spectrum antibiotics within 1h if sepsis confirmed.",
+        "constraints_checked": [
+          {
+            "check": "fluid contraindication (CHF/ESRD)",
+            "result": "none on history",
+            "source": "patient.history"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Hold any discharge / AMA request until workup complete; have MD speak directly with patient about why she cannot leave",
+        "reason": "Patient stated desire to go home but vitals show shock physiology; AMA in this state is high-risk.",
+        "constraints_checked": []
+      }
+    ],
+    "monitor": [
+      {
+        "emoji": "🟢",
+        "action": "Repeat vitals q5min until stable; trend HR, SBP, SpO2, RR; notify MD for any further drop in SBP <85 or SpO2 <90",
+        "reason": "Pending fluid response and labs; early deterioration must be caught.",
+        "constraints_checked": []
+      },
+      {
+        "emoji": "🟢",
+        "action": "Await lactate, β-hCG, CBC, troponin, and chest imaging results; reassess differential (sepsis vs PE vs ectopic vs rhabdo) when back",
+        "reason": "Diagnosis is undifferentiated; results will steer next bundle (antibiotics, CTA chest, OB consult, etc.).",
+        "constraints_checked": []
+      }
+    ],
+    "escalate_or_redirect": [
+      {
+        "emoji": "🟡",
+        "action": "Notify attending MD immediately; have OB/GYN and ICU on standby pending β-hCG and lactate",
+        "reason": "Young female with undifferentiated shock — ectopic and septic shock both need rapid specialty pathways; only 1 MD on shift.",
+        "constraints_checked": [
+          {
+            "check": "MD availability",
+            "result": "1 of 2 available",
+            "source": "ed_state.staffing"
+          }
+        ]
+      }
+    ]
+  },
+  "explanation": {
+    "summary": "28F triaged ESI 2 (now) despite well appearance. Vitals show simultaneous hypotension (88/54), tachycardia (142), tachypnea (26), hypoxia (91%), and fever (38.7°C) — meeting sepsis screen criteria plus multiple isolated red flags. Well affect in a young patient is consistent with compensated shock, not reassurance. Differential includes sepsis, PE, ruptured ectopic, and exertional/rhabdo; all require immediate monitored-bed workup. Conservative bias applied: do not downgrade based on appearance.",
+    "citations": [
+      {
+        "rule_id": "R-ESI-T2",
+        "signal": "high-risk vitals constellation in otherwise well-appearing adult"
+      },
+      {
+        "rule_id": "R-VITALS-HYPOTN",
+        "signal": "SBP 88 < 100"
+      },
+      {
+        "rule_id": "R-VITALS-TACHY",
+        "signal": "HR 142 > 110 sustained"
+      },
+      {
+        "rule_id": "R-VITALS-HYPOXIA",
+        "signal": "SpO2 91% on room air"
+      },
+      {
+        "rule_id": "R-SEPSIS-01",
+        "signal": "T 38.7, HR 142, RR 26, SBP 88 — ≥2 SIRS + hypotension; possible occult infection"
+      }
+    ]
+  },
+  "checklist": [
+    {
+      "task": "Place patient in monitored bed, apply cardiac monitor + SpO2 + supplemental O2",
+      "owner": "rn",
+      "deadline": "now"
+    },
+    {
+      "task": "Establish 2 large-bore IVs and draw sepsis/shock lab panel including lactate, β-hCG, blood cultures x2, troponin, CK, coags",
+      "owner": "rn",
+      "deadline": "<10min"
+    },
+    {
+      "task": "MD bedside evaluation and decision on empiric broad-spectrum antibiotics within 1h if sepsis confirmed",
+      "owner": "physician",
+      "deadline": "<15min"
+    },
+    {
+      "task": "Initiate 30 mL/kg crystalloid bolus; reassess BP/HR/SpO2 after each liter",
+      "owner": "rn",
+      "deadline": "<10min"
+    },
+    {
+      "task": "Order portable CXR; consider CTA chest if PE suspicion persists after labs",
+      "owner": "physician",
+      "deadline": "<30min"
+    },
+    {
+      "task": "Document refusal/AMA risk discussion; ensure patient understands she cannot be discharged until stable",
+      "owner": "physician",
+      "deadline": "<15min"
+    },
+    {
+      "task": "Reassess vitals q5min until two consecutive normal sets, then q15min",
+      "owner": "rn",
+      "deadline": "ongoing"
+    },
+    {
+      "task": "Charge nurse: confirm monitored bed assignment and protect MD bandwidth for this case",
+      "owner": "charge_nurse",
+      "deadline": "now"
+    }
+  ],
+  "review_note": {
+    "tier_chosen": "now",
+    "alternative_tier": "soon",
+    "confidence_in_call": "high",
+    "why_this_tier": [
+      "Five concurrent vital sign abnormalities (BP, HR, RR, SpO2, T) — any two would already trigger ESI 2",
+      "Meets R-SEPSIS-01 screen explicitly",
+      "Compensated shock in a young patient typically presents as 'looks well' until sudden decompensation",
+      "Conservative bias: discordance between appearance and vitals defaults to escalation, not reassurance"
+    ],
+    "would_downgrade_if": [
+      "Repeat vitals on a different, properly-sized cuff with patient seated/calm normalize completely (HR <100, SBP >110, SpO2 ≥95% RA, T <38, RR <20)",
+      "Lactate normal AND β-hCG negative AND clear benign explanation (e.g., recent albuterol use, finger-probe artifact) confirmed",
+      "Patient remains stable for 2+ hours of observation with normalized vitals"
+    ],
+    "would_upgrade_if": [
+      "SBP drops below 85 or fails to respond to fluid bolus",
+      "Lactate ≥4 mmol/L",
+      "Mental status changes, new chest pain, or worsening hypoxia",
+      "β-hCG positive with any abdominal/pelvic findings → ESI 1 surgical emergency"
+    ],
+    "subject_to_review": true
+  },
+  "meta": {
+    "model": "claude-opus-4-7",
+    "rule_pack": "esi-v4-2026-05",
+    "generated_at": "2026-05-01T20:03:36.526904+00:00"
+  }
+}

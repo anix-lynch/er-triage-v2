@@ -1,0 +1,148 @@
+{
+  "case_id": "ER-0042",
+  "patient_id": "P-9981",
+  "encounter": {
+    "arrival_time": "2026-05-01T14:22:00-07:00",
+    "triage_time": "2026-05-01T14:34:00-07:00",
+    "ed_facility": "main-campus"
+  },
+  "patient": { "age": 58, "sex": "F" },
+  "urgency": {
+    "tier": "now",
+    "confidence": "high",
+    "info_gaps": [
+      "12-lead ECG not yet obtained",
+      "troponin not drawn",
+      "bilateral arm BP not documented"
+    ]
+  },
+  "constraints": {
+    "resource": [
+      { "type": "beds_free",      "available": 4, "total": 12, "needed": 1, "ok": true },
+      { "type": "monitored_beds", "available": 1, "total": 4,  "needed": 1, "ok": true, "note": "last monitor — flag if another ESI-1 arrives" },
+      { "type": "rn_staff",       "available": 3, "total": 4,  "needed": 1, "ok": true },
+      { "type": "md_staff",       "available": 1, "total": 2,  "needed": 1, "ok": true },
+      { "type": "cardiology",     "status": "on-call", "needed": "standby", "ok": true }
+    ],
+    "time": [
+      { "target": "door-to-ECG",         "limit_min": 10,  "elapsed_min": 12, "status": "breached" },
+      { "target": "door-to-disposition", "limit_min": 240, "elapsed_min": 12, "status": "ok" }
+    ],
+    "warnings": [
+      "door-to-ECG breached by 2 min — ECG must be top action",
+      "only 1 monitored bed left — escalate to charge if another ESI-1 arrives in next 30 min"
+    ]
+  },
+  "hypotheses": [
+    {
+      "name": "Acute coronary syndrome",
+      "confidence": "high",
+      "supporting_signals": ["chest pain w/ jaw radiation", "diaphoresis", "HR 118", "SBP 92", "smoker + HTN"],
+      "rules_against": []
+    },
+    {
+      "name": "Aortic dissection",
+      "confidence": "low",
+      "supporting_signals": ["hypotension"],
+      "rules_against": ["pain not described as tearing", "no inter-arm BP differential yet"]
+    },
+    {
+      "name": "Pulmonary embolism",
+      "confidence": "low",
+      "supporting_signals": ["tachycardia", "SpO2 94"],
+      "rules_against": ["no pleuritic component", "no recent immobilization or travel"]
+    },
+    {
+      "name": "Anxiety / panic",
+      "confidence": "very_low",
+      "supporting_signals": ["diaphoresis", "anxious affect"],
+      "rules_against": ["age + cardiac risk profile", "hypotension uncommon in panic"]
+    }
+  ],
+  "actions": {
+    "immediate": [
+      {
+        "emoji": "🔴",
+        "action": "12-lead ECG now",
+        "reason": "door-to-ECG already breached; ESI R-ACS-01",
+        "constraints_checked": [
+          { "check": "ecg_machine_available", "result": "yes", "source": "ed_state.equipment" }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Place on cardiac monitor + continuous SpO2",
+        "reason": "HR 118 + SBP 92 + chest pain — hemodynamic instability",
+        "constraints_checked": [
+          { "check": "monitored_bed_available", "result": "yes (1 of 4)", "source": "ed_state.beds" }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "2x large-bore IV access",
+        "reason": "borderline hypotension; prepare for fluids/pressors"
+      },
+      {
+        "emoji": "🔴",
+        "action": "ASA 324mg chewable",
+        "reason": "top hypothesis ACS (high confidence) — early ASA reduces mortality",
+        "constraints_checked": [
+          { "check": "aspirin_allergy",  "result": "not_found", "source": "history.allergies" },
+          { "check": "active_gi_bleed",  "result": "not_indicated", "source": "nurse_notes" }
+        ]
+      }
+    ],
+    "monitor": [
+      {
+        "emoji": "🟢",
+        "action": "Reassess vitals q5min until stable",
+        "reason": "borderline SBP 92 — early detection of decompensation"
+      },
+      {
+        "emoji": "🟢",
+        "action": "Trop + d-dimer + lactate + BMP",
+        "reason": "trop confirms ACS; d-dimer cheap rule-out for low-confidence PE/dissection"
+      },
+      {
+        "emoji": "🟢",
+        "action": "Bilateral arm BP",
+        "reason": "cheap test to lower aortic-dissection hypothesis further"
+      }
+    ],
+    "escalate_or_redirect": [
+      {
+        "emoji": "🟡",
+        "action": "Notify cardiology (standby for ECG read)",
+        "reason": "high-confidence ACS — pre-position consult",
+        "constraints_checked": [
+          { "check": "cardiology_on_call", "result": "available, ETA 15min", "source": "ed_state.consults" }
+        ]
+      },
+      {
+        "emoji": "🟡",
+        "action": "Notify charge nurse — last monitored bed used",
+        "reason": "resource constraint warning"
+      }
+    ]
+  },
+  "explanation": {
+    "summary": "58F with classic ACS pattern (substernal chest pain radiating to jaw, diaphoresis, tachycardia, borderline hypotension). Treat as ESI 1 given hemodynamic instability. Top differential is ACS; dissection and PE kept low-confidence to drive cheap rule-out tests.",
+    "citations": [
+      { "rule_id": "R-ACS-01",         "signal": "chest pain + diaphoresis + jaw radiation" },
+      { "rule_id": "R-VITALS-HYPOTN",  "signal": "SBP 92 with tachycardia HR 118" },
+      { "rule_id": "R-ESI-T1",         "signal": "potential immediate threat to life — hemodynamic instability" }
+    ]
+  },
+  "checklist": [
+    { "task": "Assign monitored bed",                     "owner": "charge_nurse", "deadline": "now",        "status": "pending" },
+    { "task": "Notify cardiology (standby)",              "owner": "physician",    "deadline": "now",        "status": "pending" },
+    { "task": "Request troponin + d-dimer + BMP",         "owner": "rn",           "deadline": "<10 min",    "status": "pending" },
+    { "task": "Flag for reassessment q5min",              "owner": "rn",           "deadline": "ongoing",    "status": "pending" },
+    { "task": "Document handoff note (SBAR) at shift end","owner": "physician",    "deadline": "shift_end",  "status": "pending" }
+  ],
+  "meta": {
+    "model": "claude-opus-4-7",
+    "rule_pack": "esi-v4-2026-05",
+    "generated_at": "2026-05-01T14:34:02-07:00"
+  }
+}

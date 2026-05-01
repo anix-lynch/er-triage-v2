@@ -1,0 +1,272 @@
+{
+  "case_id": "ER-0051",
+  "patient_id": "P010",
+  "encounter": {
+    "arrival_time": "2026-05-01T10:22:00"
+  },
+  "patient": {
+    "age": 67,
+    "sex": "M"
+  },
+  "urgency": {
+    "tier": "now",
+    "confidence": "high",
+    "info_gaps": [
+      "current INR (last value 2.8 from prior week)",
+      "mechanism details / witnessed LOC duration",
+      "any focal neuro deficit on exam",
+      "anti-emetic/headache symptoms"
+    ]
+  },
+  "constraints": {
+    "resource": [
+      {
+        "monitored_beds_free": 1,
+        "note": "only 1 monitored bed left — likely needed for observation ≥6h"
+      },
+      {
+        "md_available": 1,
+        "rn_available": 3
+      },
+      {
+        "neurosurgery_on_call": "not listed; neurology ETA 25 min, surgery ETA 20 min"
+      }
+    ],
+    "time": [
+      {
+        "target": "CT head STAT",
+        "deadline_min_from_arrival": 60,
+        "elapsed_min": 12
+      },
+      {
+        "target": "INR result",
+        "deadline_min_from_arrival": 60
+      }
+    ],
+    "warnings": [
+      "Warfarin + head trauma + brief LOC = high risk intracranial hemorrhage even with GCS 15",
+      "Last INR 2.8 (therapeutic-high); current INR may be higher",
+      "Consider reversal agents (4F-PCC, vitamin K) on standby pending CT and INR",
+      "Observation ≥6h required even if initial CT negative"
+    ]
+  },
+  "hypotheses": [
+    {
+      "name": "Traumatic intracranial hemorrhage (subdural/epidural/contusion) on warfarin",
+      "confidence": "high",
+      "supporting_signals": [
+        "age 67",
+        "fall with head strike",
+        "occipital hematoma",
+        "brief LOC",
+        "warfarin with INR 2.8 last week",
+        "AFib/HTN history"
+      ]
+    },
+    {
+      "name": "Uncomplicated minor head injury / scalp hematoma",
+      "confidence": "low",
+      "supporting_signals": [
+        "GCS 15",
+        "alert",
+        "stable vitals",
+        "no focal deficit reported"
+      ],
+      "rules_against": [
+        "anticoagulation alone mandates CT regardless of GCS",
+        "LOC documented",
+        "elderly faller has high baseline ICH risk"
+      ]
+    },
+    {
+      "name": "Cervical spine injury from same fall",
+      "confidence": "low",
+      "supporting_signals": [
+        "fall mechanism",
+        "age 67",
+        "occipital impact"
+      ],
+      "rules_against": [
+        "no neck pain documented",
+        "no focal deficit"
+      ]
+    },
+    {
+      "name": "Syncope/arrhythmia (AFib) as cause of fall",
+      "confidence": "medium",
+      "supporting_signals": [
+        "AFib history",
+        "brief LOC",
+        "age 67"
+      ],
+      "rules_against": [
+        "HR 84 regular-appearing now",
+        "no chest pain or palpitations reported"
+      ]
+    }
+  ],
+  "actions": {
+    "immediate": [
+      {
+        "emoji": "🔴",
+        "action": "CT head non-contrast STAT",
+        "reason": "Head trauma on warfarin mandates immediate CT regardless of GCS.",
+        "constraints_checked": [
+          {
+            "check": "renal function for contrast",
+            "result": "non-contrast — not required",
+            "source": "protocol"
+          },
+          {
+            "check": "pregnancy",
+            "result": "n/a male 67yo",
+            "source": "demographics"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "STAT INR/PT, CBC, BMP, type & screen; place 2 large-bore IVs",
+        "reason": "Quantify anticoagulation level and prepare for possible reversal (4F-PCC + vitamin K) if ICH.",
+        "constraints_checked": [
+          {
+            "check": "warfarin documented",
+            "result": "yes, 5mg daily; last INR 2.8",
+            "source": "med list + nurse note"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Place on cardiac monitor in monitored bed; neuro checks q15min",
+        "reason": "AFib + LOC + anticoagulated head injury — need continuous monitoring and serial neuro exams.",
+        "constraints_checked": [
+          {
+            "check": "monitored bed available",
+            "result": "1 free of 4",
+            "source": "ed_state"
+          }
+        ]
+      }
+    ],
+    "monitor": [
+      {
+        "emoji": "🟢",
+        "action": "Serial GCS and focal neuro exam q15min until CT result, then per disposition",
+        "reason": "Detect delayed deterioration; warfarin-related ICH can evolve slowly.",
+        "constraints_checked": []
+      },
+      {
+        "emoji": "🟢",
+        "action": "Plan ≥6h observation with repeat CT or extended obs even if first CT negative",
+        "reason": "Anticoagulated head trauma carries delayed bleed risk per ACEP policy.",
+        "constraints_checked": []
+      }
+    ],
+    "escalate_or_redirect": [
+      {
+        "emoji": "🟡",
+        "action": "Notify neurosurgery on standby; have 4F-PCC + vitamin K 10mg IV ready pending CT/INR",
+        "reason": "If CT shows ICH, reversal must start within minutes — pre-stage now.",
+        "constraints_checked": [
+          {
+            "check": "neurology ETA",
+            "result": "25 min",
+            "source": "ed_state.on_call"
+          }
+        ]
+      }
+    ]
+  },
+  "explanation": {
+    "summary": "67M on warfarin (last INR 2.8) with witnessed fall, head strike, brief LOC, occipital hematoma — GCS 15 and vitals stable but anticoagulated head trauma is a tier-2 high-risk presentation. Mandatory STAT CT head, INR, and observation ≥6h; reversal agents pre-staged. Tier 'now' chosen conservatively despite normal vitals.",
+    "citations": [
+      {
+        "rule_id": "R-HEAD-ANTICOAG-01",
+        "signal": "head injury on warfarin → CT STAT + INR + ≥6h obs regardless of GCS"
+      },
+      {
+        "rule_id": "R-ESI-T2",
+        "signal": "high-risk situation (anticoagulated TBI with LOC) → ESI 2"
+      }
+    ]
+  },
+  "checklist": [
+    {
+      "task": "Order and complete CT head non-contrast STAT",
+      "owner": "physician",
+      "deadline": "<30min",
+      "status": "pending"
+    },
+    {
+      "task": "Draw STAT INR/PT, CBC, BMP, type & screen",
+      "owner": "rn",
+      "deadline": "<15min",
+      "status": "pending"
+    },
+    {
+      "task": "Place patient in monitored bed with cardiac telemetry",
+      "owner": "charge_nurse",
+      "deadline": "now",
+      "status": "pending"
+    },
+    {
+      "task": "Serial GCS/neuro checks q15min",
+      "owner": "rn",
+      "deadline": "ongoing",
+      "status": "pending"
+    },
+    {
+      "task": "Pre-stage 4F-PCC and vitamin K 10mg IV from pharmacy",
+      "owner": "rn",
+      "deadline": "<30min",
+      "status": "pending"
+    },
+    {
+      "task": "Confirm last warfarin dose timing and clarify mechanism/LOC duration with patient/family",
+      "owner": "rn",
+      "deadline": "<30min",
+      "status": "pending"
+    },
+    {
+      "task": "Reassess for c-spine tenderness and clear or collar",
+      "owner": "physician",
+      "deadline": "<30min",
+      "status": "pending"
+    },
+    {
+      "task": "Disposition decision (admit obs vs neurosurgery) after CT + INR",
+      "owner": "physician",
+      "deadline": "<60min",
+      "status": "pending"
+    }
+  ],
+  "review_note": {
+    "tier_chosen": "now",
+    "alternative_tier": "soon",
+    "confidence_in_call": "high",
+    "why_this_tier": [
+      "R-HEAD-ANTICOAG-01 explicitly classifies warfarin + any head injury as ESI 2 regardless of GCS",
+      "Documented brief LOC raises ICH pre-test probability",
+      "Last INR 2.8 (upper therapeutic) — bleeding risk meaningful",
+      "Conservative bias: occult ICH on anticoagulants can decompensate without warning"
+    ],
+    "would_downgrade_if": [
+      "Patient not actually on anticoagulation (med reconciliation error)",
+      "No LOC, no head strike on re-history, no scalp finding",
+      "CT head negative AND INR <1.5 AND 6h obs uneventful — then downgrade disposition, not initial tier"
+    ],
+    "would_upgrade_if": [
+      "Any focal neuro deficit emerges",
+      "GCS drops below 15",
+      "Vomiting, severe headache, or new hypertension/bradycardia (Cushing)",
+      "INR significantly supratherapeutic (>3.5) or CT shows hemorrhage"
+    ],
+    "subject_to_review": true
+  },
+  "meta": {
+    "model": "claude-opus-4-7",
+    "rule_pack": "esi-v4-2026-05",
+    "generated_at": "2026-05-01T19:42:04.524329+00:00"
+  }
+}

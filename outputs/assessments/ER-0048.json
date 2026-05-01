@@ -1,0 +1,229 @@
+{
+  "case_id": "ER-0048",
+  "patient_id": "P007",
+  "encounter": {
+    "arrival_time": "2026-05-01T09:40:00"
+  },
+  "patient": {
+    "age": 6,
+    "sex": "F"
+  },
+  "urgency": {
+    "tier": "now",
+    "confidence": "high",
+    "info_gaps": [
+      "peak flow measurement",
+      "duration of current flare",
+      "time of last albuterol dose",
+      "response to home inhaler"
+    ]
+  },
+  "constraints": {
+    "resource": [
+      {
+        "monitored_beds_free": 1,
+        "note": "only 1 monitored bed left — pediatric resp distress should claim it"
+      },
+      {
+        "rn_available": 3,
+        "md_available": 1
+      }
+    ],
+    "time": [
+      {
+        "wait_min_so_far": 6,
+        "target": "immediate placement for SpO2 91% + accessory muscle use"
+      }
+    ],
+    "warnings": [
+      "monitored bed scarcity — 1 free with multiple 'now' tier patients in queue",
+      "MD availability tight (1 of 2)",
+      "child unable to speak full sentences = impending respiratory failure risk"
+    ]
+  },
+  "hypotheses": [
+    {
+      "name": "Acute asthma exacerbation (moderate-to-severe)",
+      "confidence": "high",
+      "supporting_signals": [
+        "known asthma history with 4 prior visits (last for exacerbation)",
+        "audible wheeze + accessory muscle use",
+        "speaks only short phrases",
+        "RR 32, HR 132, SpO2 91% on room air",
+        "already used home albuterol x2 with inadequate response"
+      ]
+    },
+    {
+      "name": "Impending respiratory failure",
+      "confidence": "medium",
+      "supporting_signals": [
+        "SpO2 91% despite inhaler use",
+        "accessory muscle use",
+        "fragmented speech"
+      ],
+      "rules_against": [
+        "still alert and speaking",
+        "SBP maintained at 100",
+        "no cyanosis or altered mental status reported"
+      ]
+    },
+    {
+      "name": "Lower respiratory infection (pneumonia/viral) triggering flare",
+      "confidence": "low",
+      "supporting_signals": [
+        "tachypnea",
+        "tachycardia"
+      ],
+      "rules_against": [
+        "afebrile (37.1°C)",
+        "no cough or focal findings noted",
+        "history fits asthma trigger pattern"
+      ]
+    }
+  ],
+  "actions": {
+    "immediate": [
+      {
+        "emoji": "🔴",
+        "action": "Place on supplemental O2 and continuous SpO2/cardiac monitoring; move to monitored bed now",
+        "reason": "SpO2 91% with accessory muscle use meets pediatric respiratory distress criteria.",
+        "constraints_checked": [
+          {
+            "check": "monitored bed availability",
+            "result": "1 free — claim it",
+            "source": "ed_state.monitored_beds"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Albuterol nebulizer (weight-based) + ipratropium; consider continuous neb if no improvement; oral/IV corticosteroid",
+        "reason": "Wheezing pediatric asthma flare unresponsive to 2 home inhaler doses.",
+        "constraints_checked": [
+          {
+            "check": "albuterol allergy",
+            "result": "none — already on home albuterol",
+            "source": "patient.medications"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "MD bedside evaluation now; prepare for escalation (Mg sulfate, epi IM, BiPAP) if no improvement after first neb",
+        "reason": "Short-phrase speech and SpO2 91% indicate moderate-to-severe flare with risk of decompensation.",
+        "constraints_checked": [
+          {
+            "check": "MD availability",
+            "result": "1 of 2 available",
+            "source": "ed_state.staffing"
+          }
+        ]
+      }
+    ],
+    "monitor": [
+      {
+        "emoji": "🟢",
+        "action": "Reassess RR, SpO2, work of breathing, and air entry after each neb (q15-20 min)",
+        "reason": "Track treatment response and detect deterioration early."
+      },
+      {
+        "emoji": "🟢",
+        "action": "Consider CXR if no improvement, asymmetric breath sounds, or first-time wheeze concern; pulse ox trending",
+        "reason": "Imaging only if response inadequate or focal findings emerge."
+      }
+    ],
+    "escalate_or_redirect": [
+      {
+        "emoji": "🟡",
+        "action": "Notify pediatrics / PICU early given monitored-bed scarcity and severity",
+        "reason": "If response to nebs is poor, child will need admission/PICU; bed planning should start now.",
+        "constraints_checked": [
+          {
+            "check": "monitored bed remaining after placement",
+            "result": "0 — surge risk",
+            "source": "ed_state.monitored_beds"
+          }
+        ]
+      }
+    ]
+  },
+  "explanation": {
+    "summary": "6-year-old with known asthma in moderate-to-severe exacerbation: SpO2 91%, RR 32, HR 132, accessory muscle use, fragmented speech, inadequate response to 2 home albuterol doses. Meets pediatric respiratory distress criteria on multiple axes (hypoxia + accessory muscles + speech limitation). Tier: now (ESI 2, with potential to escalate to ESI 1).",
+    "citations": [
+      {
+        "rule_id": "R-PEDS-RESP-01",
+        "signal": "SpO2 91% + accessory muscle use + unable to speak full sentences"
+      },
+      {
+        "rule_id": "R-VITALS-HYPOXIA",
+        "signal": "SpO2 91% on room air"
+      },
+      {
+        "rule_id": "R-VITALS-TACHY",
+        "signal": "HR 132 in 6yo (>99th %ile)"
+      },
+      {
+        "rule_id": "R-ESI-T2",
+        "signal": "high-risk pediatric respiratory presentation with abnormal vitals"
+      }
+    ]
+  },
+  "checklist": [
+    {
+      "task": "Move to monitored bed and start supplemental O2",
+      "owner": "rn",
+      "deadline": "now"
+    },
+    {
+      "task": "Administer first albuterol+ipratropium nebulizer",
+      "owner": "rn",
+      "deadline": "<10min"
+    },
+    {
+      "task": "MD bedside assessment and steroid order",
+      "owner": "physician",
+      "deadline": "<15min"
+    },
+    {
+      "task": "Reassess vitals + work of breathing post-neb",
+      "owner": "rn",
+      "deadline": "<30min"
+    },
+    {
+      "task": "Pediatrics/PICU consult if poor response after 2 nebs",
+      "owner": "physician",
+      "deadline": "<60min"
+    },
+    {
+      "task": "Bed-flow check — only 1 monitored bed free with multiple 'now' patients",
+      "owner": "charge_nurse",
+      "deadline": "now"
+    }
+  ],
+  "review_note": {
+    "tier_chosen": "now",
+    "alternative_tier": "soon",
+    "confidence_in_call": "high",
+    "why_this_tier": [
+      "SpO2 < 92% triggers R-VITALS-HYPOXIA minimum ESI 2",
+      "Accessory muscle use + short-phrase speech triggers R-PEDS-RESP-01",
+      "Failed home rescue inhaler x2 indicates moderate-to-severe flare"
+    ],
+    "would_downgrade_if": [
+      "SpO2 ≥95% on room air after first neb",
+      "Resolution of accessory muscle use and full-sentence speech",
+      "RR normalizes for age"
+    ],
+    "would_upgrade_if": [
+      "SpO2 drops further or fails to rise with O2",
+      "Silent chest, altered mental status, or rising pCO2",
+      "Need for BiPAP, IM epinephrine, or intubation"
+    ],
+    "subject_to_review": true
+  },
+  "meta": {
+    "model": "claude-opus-4-7",
+    "rule_pack": "esi-v4-2026-05",
+    "generated_at": "2026-05-01T19:40:04.639643+00:00"
+  }
+}

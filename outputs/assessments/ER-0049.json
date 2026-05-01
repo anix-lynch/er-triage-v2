@@ -1,0 +1,230 @@
+{
+  "case_id": "ER-0049",
+  "patient_id": "P008",
+  "encounter": {
+    "arrival_time": "2026-05-01T09:55:00"
+  },
+  "patient": {
+    "age": 52,
+    "sex": "M"
+  },
+  "urgency": {
+    "tier": "soon",
+    "confidence": "high",
+    "info_gaps": [
+      "WBC/CRP",
+      "urinalysis",
+      "CT abdomen/pelvis findings",
+      "trend of pain and vitals"
+    ]
+  },
+  "constraints": {
+    "resource": [
+      {
+        "item": "monitored_beds",
+        "free": 1,
+        "note": "scarce — reserve for higher-acuity now-tier patients"
+      },
+      {
+        "item": "general_beds",
+        "free": 4
+      },
+      {
+        "item": "md_available",
+        "count": 1,
+        "note": "single MD; multiple now-tier patients ahead"
+      },
+      {
+        "item": "surgery_on_call",
+        "eta_min": 20,
+        "available": true
+      }
+    ],
+    "time": [
+      {
+        "metric": "wait_time_min",
+        "value": 38
+      },
+      {
+        "metric": "case_wait_min",
+        "value": 10
+      }
+    ],
+    "warnings": [
+      "Several now-tier cases ahead in queue; this patient may experience further delay",
+      "Low-grade fever 37.6°C with RLQ peritoneal signs — re-screen for sepsis if vitals shift"
+    ]
+  },
+  "hypotheses": [
+    {
+      "name": "Acute appendicitis",
+      "confidence": "high",
+      "supporting_signals": [
+        "RLQ tenderness",
+        "guarding",
+        "6h progressive pain",
+        "nausea",
+        "low-grade temp 37.6°C",
+        "pain 7/10",
+        "age/sex consistent"
+      ],
+      "rules_against": [
+        "no rebound tenderness yet",
+        "no vomiting",
+        "afebrile threshold not crossed"
+      ]
+    },
+    {
+      "name": "Other surgical abdomen (diverticulitis, ureteric colic, bowel pathology)",
+      "confidence": "medium",
+      "supporting_signals": [
+        "lower abdominal pain",
+        "guarding"
+      ],
+      "rules_against": [
+        "RLQ localization favors appendicitis",
+        "no hematuria/flank radiation noted",
+        "no GU symptoms reported"
+      ]
+    },
+    {
+      "name": "Early intra-abdominal sepsis",
+      "confidence": "low",
+      "supporting_signals": [
+        "temp 37.6°C",
+        "HR 92",
+        "infection plausible"
+      ],
+      "rules_against": [
+        "does not meet R-SEPSIS-01 criteria (only 1 of 2 SIRS — temp <38, HR <90 borderline, RR 18, SBP 134, alert)",
+        "hemodynamically stable"
+      ]
+    },
+    {
+      "name": "GERD flare / non-surgical GI",
+      "confidence": "very_low",
+      "supporting_signals": [
+        "history of GERD"
+      ],
+      "rules_against": [
+        "RLQ localization atypical for GERD",
+        "guarding suggests peritoneal process",
+        "pain 7/10 severe"
+      ]
+    }
+  ],
+  "actions": {
+    "immediate": [],
+    "monitor": [
+      {
+        "emoji": "🟢",
+        "action": "Establish IV access, draw CBC/CMP/lipase/lactate, urinalysis; keep NPO",
+        "reason": "Likely surgical abdomen — labs and NPO status prepare for imaging and possible OR.",
+        "constraints_checked": [
+          {
+            "check": "allergy to contrast",
+            "result": "none documented",
+            "source": "patient.allergies"
+          }
+        ]
+      },
+      {
+        "emoji": "🟢",
+        "action": "Reassess vitals and abdominal exam q30min; recheck temp, watch for rebound/rising HR",
+        "reason": "Detect progression to peritonitis or sepsis early while awaiting MD/imaging."
+      }
+    ],
+    "escalate_or_redirect": [
+      {
+        "emoji": "🟡",
+        "action": "Notify on-call surgery for evaluation and order CT abdomen/pelvis with contrast",
+        "reason": "RLQ pain with guarding warrants surgical consult; surgery ETA 15min aligns with imaging turnaround.",
+        "constraints_checked": [
+          {
+            "check": "surgery_on_call_available",
+            "result": "yes, ETA 20min",
+            "source": "ed_state.on_call.surgery"
+          }
+        ]
+      }
+    ]
+  },
+  "explanation": {
+    "summary": "52M with 6h RLQ pain, guarding, nausea, low-grade fever, pain 7/10, vitals otherwise stable. Picture is concerning for acute appendicitis or other surgical abdomen requiring labs + CT + surgical consult (≥2 resources). No vital red flags and does not meet sepsis or ESI-2 high-risk criteria, so tier 'soon' (ESI 3) is appropriate, with conservative monitoring for escalation.",
+    "citations": [
+      {
+        "rule_id": "R-ESI-T3",
+        "signal": "stable vitals + ≥2 resources (labs, CT, surgical consult)"
+      },
+      {
+        "rule_id": "R-SEPSIS-01",
+        "signal": "screen applied — does not meet ≥2 SIRS criteria; monitor"
+      }
+    ]
+  },
+  "checklist": [
+    {
+      "task": "Place IV, send CBC/CMP/lipase/lactate/UA, type & screen",
+      "owner": "rn",
+      "deadline": "<15min",
+      "status": "pending"
+    },
+    {
+      "task": "Keep NPO and document last meal time",
+      "owner": "rn",
+      "deadline": "now",
+      "status": "pending"
+    },
+    {
+      "task": "MD evaluation and order CT abdomen/pelvis with IV contrast",
+      "owner": "physician",
+      "deadline": "<30min",
+      "status": "pending"
+    },
+    {
+      "task": "Page surgery on-call for RLQ peritoneal signs",
+      "owner": "physician",
+      "deadline": "<30min",
+      "status": "pending"
+    },
+    {
+      "task": "Reassess vitals, pain, abdominal exam q30min",
+      "owner": "rn",
+      "deadline": "ongoing",
+      "status": "pending"
+    },
+    {
+      "task": "Re-triage if SBP<100, HR>110, T≥38.5, or rebound develops",
+      "owner": "charge_nurse",
+      "deadline": "ongoing",
+      "status": "pending"
+    }
+  ],
+  "review_note": {
+    "tier_chosen": "soon",
+    "alternative_tier": "now",
+    "confidence_in_call": "high",
+    "why_this_tier": [
+      "Stable vitals (HR 92, SBP 134, SpO2 98, RR 18)",
+      "Likely needs ≥2 resources (labs + CT + surgical consult) — fits ESI 3",
+      "Does not meet R-SEPSIS-01 or R-ESI-T2 high-risk thresholds currently",
+      "Pain 7/10 but without concerning vitals — does not bump to ESI 2"
+    ],
+    "would_upgrade_if": [
+      "SBP drops <100 or HR sustained >110",
+      "Temp ≥38.5 or meets ≥2 SIRS criteria",
+      "Rebound tenderness, rigidity, or worsening peritoneal signs",
+      "Lactate ≥2 or clinical deterioration"
+    ],
+    "would_downgrade_if": [
+      "Pain resolves, exam benign on reassessment, labs unremarkable",
+      "Clear non-surgical etiology identified (e.g., simple GERD/musculoskeletal)"
+    ],
+    "subject_to_review": true
+  },
+  "meta": {
+    "model": "claude-opus-4-7",
+    "rule_pack": "esi-v4-2026-05",
+    "generated_at": "2026-05-01T19:40:40.854265+00:00"
+  }
+}

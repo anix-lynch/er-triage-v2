@@ -1,0 +1,264 @@
+{
+  "case_id": "ER-0042",
+  "patient_id": "P001",
+  "encounter": {
+    "arrival_time": "2026-05-01T08:14:00"
+  },
+  "patient": {
+    "age": 58,
+    "sex": "F"
+  },
+  "urgency": {
+    "tier": "now",
+    "confidence": "high",
+    "info_gaps": [
+      "12-lead ECG result",
+      "troponin",
+      "prior cardiac history/CAD",
+      "current medication compliance"
+    ]
+  },
+  "constraints": {
+    "resource": [
+      {
+        "monitored_beds_free": 1,
+        "note": "last monitored bed — assign to this patient"
+      },
+      {
+        "md_available": 1,
+        "rn_available": 3
+      },
+      {
+        "cardiology_on_call_eta_min": 15
+      }
+    ],
+    "time": [
+      {
+        "metric": "door-to-ECG",
+        "target_min": 10,
+        "actual_min": 12,
+        "status": "BREACHED"
+      }
+    ],
+    "warnings": [
+      "Penicillin allergy — avoid PCN-class antibiotics if sepsis path activated",
+      "Hypotensive (92/58) — avoid nitroglycerin until RV infarct ruled out",
+      "Patient refuses to lie flat — respect positioning, do not force supine"
+    ]
+  },
+  "hypotheses": [
+    {
+      "name": "Acute Coronary Syndrome (STEMI/NSTEMI)",
+      "confidence": "high",
+      "supporting_signals": [
+        "Chest pain radiating to left arm, 35 min",
+        "Diaphoresis, anxiety",
+        "Age 58, F, HTN + T2DM + smoker (multiple CAD risk factors)",
+        "Tachycardia HR 118, hypotension SBP 92, RR 22",
+        "Pain 8/10"
+      ]
+    },
+    {
+      "name": "Cardiogenic shock / large MI with hemodynamic compromise",
+      "confidence": "medium",
+      "supporting_signals": [
+        "Hypotension + tachycardia + diaphoresis",
+        "Refusal to lie flat (possible pulmonary congestion or pain-driven)"
+      ],
+      "rules_against": [
+        "SpO2 94% (mild)",
+        "No documented rales/JVD yet"
+      ]
+    },
+    {
+      "name": "Aortic dissection",
+      "confidence": "low",
+      "supporting_signals": [
+        "HTN history",
+        "Severe chest pain with diaphoresis"
+      ],
+      "rules_against": [
+        "Pain described as radiating to arm (classic ACS pattern), not tearing/back",
+        "No BP differential documented"
+      ]
+    },
+    {
+      "name": "Pulmonary embolism",
+      "confidence": "low",
+      "supporting_signals": [
+        "Tachycardia, tachypnea, mild hypoxia"
+      ],
+      "rules_against": [
+        "Diaphoresis + arm radiation more typical of ACS",
+        "No leg swelling/immobilization noted"
+      ]
+    }
+  ],
+  "actions": {
+    "immediate": [
+      {
+        "emoji": "🔴",
+        "action": "Repeat 12-lead ECG NOW and place on cardiac monitor; door-to-ECG already breached at 12 min",
+        "reason": "ACS suspicion high; SLA breached, cardiology decision depends on ECG.",
+        "constraints_checked": [
+          {
+            "check": "ECG performed within 10 min",
+            "result": "BREACHED (12 min)",
+            "source": "ed_state.sla_breaches"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Establish 2x large-bore IV, draw troponin/CBC/BMP/coags/lactate, give ASA 324mg chewable",
+        "reason": "Standard ACS bundle; ASA reduces mortality, no allergy/GI bleed contraindication noted.",
+        "constraints_checked": [
+          {
+            "check": "ASA allergy",
+            "result": "none documented (PCN allergy only)",
+            "source": "patient.allergies"
+          },
+          {
+            "check": "Active GI bleed",
+            "result": "none reported",
+            "source": "patient.history"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Move to last monitored bed; hold nitroglycerin given SBP 92; cautious 250 mL NS bolus and reassess",
+        "reason": "Hypotension with suspected ACS — nitrates contraindicated; gentle volume support before pressors.",
+        "constraints_checked": [
+          {
+            "check": "SBP <100",
+            "result": "true (92)",
+            "source": "patient.vitals.bp_sys"
+          },
+          {
+            "check": "Monitored bed available",
+            "result": "1 free",
+            "source": "ed_state.monitored_beds"
+          }
+        ]
+      }
+    ],
+    "monitor": [
+      {
+        "emoji": "🟢",
+        "action": "Continuous cardiac monitoring + repeat vitals q5min; serial ECG q15min until pain resolves or cath lab",
+        "reason": "Detect dynamic ST changes and hemodynamic deterioration.",
+        "constraints_checked": []
+      },
+      {
+        "emoji": "🟢",
+        "action": "Serial troponin at 0 and 1–3h; reassess pain score and SpO2",
+        "reason": "Confirm/exclude myocardial injury per ACS workup.",
+        "constraints_checked": []
+      }
+    ],
+    "escalate_or_redirect": [
+      {
+        "emoji": "🟡",
+        "action": "Activate cardiology consult NOW (on-call ETA 15 min); prep cath lab pending ECG",
+        "reason": "If STEMI on ECG, door-to-balloon clock starts; cardiology decision needed.",
+        "constraints_checked": [
+          {
+            "check": "Cardiology availability",
+            "result": "available, ETA 15 min",
+            "source": "ed_state.on_call.cardiology"
+          }
+        ]
+      }
+    ]
+  },
+  "explanation": {
+    "summary": "58F with classic ACS presentation (chest pain + left arm radiation + diaphoresis) and concerning vitals (SBP 92, HR 118, RR 22, SpO2 94) on a background of HTN/T2DM/smoking. Multiple risk factors plus hemodynamic instability place her at minimum ESI 2, functionally ESI 1 if hypotension worsens. Door-to-ECG SLA already breached — immediate ECG, monitored bed, ASA, and cardiology activation are top priorities. Hold nitrates due to hypotension.",
+    "citations": [
+      {
+        "rule_id": "R-ACS-01",
+        "signal": "Chest pain + arm radiation + diaphoresis with age ≥40, HTN, DM, smoker"
+      },
+      {
+        "rule_id": "R-VITALS-HYPOTN",
+        "signal": "SBP 92 mmHg"
+      },
+      {
+        "rule_id": "R-VITALS-TACHY",
+        "signal": "HR 118 sustained"
+      },
+      {
+        "rule_id": "R-ESI-T2",
+        "signal": "High-risk situation with severe pain 8/10 and concerning vitals"
+      }
+    ]
+  },
+  "checklist": [
+    {
+      "task": "Repeat 12-lead ECG and hand to physician for read",
+      "owner": "rn",
+      "deadline": "now"
+    },
+    {
+      "task": "Place on cardiac monitor in monitored bed",
+      "owner": "rn",
+      "deadline": "now"
+    },
+    {
+      "task": "Administer ASA 324 mg chewable",
+      "owner": "rn",
+      "deadline": "<5min"
+    },
+    {
+      "task": "Draw troponin/BMP/CBC/coags/lactate and start 2x IV",
+      "owner": "rn",
+      "deadline": "<10min"
+    },
+    {
+      "task": "Cardiology bedside evaluation / cath lab activation if STEMI",
+      "owner": "physician",
+      "deadline": "<15min"
+    },
+    {
+      "task": "Reassess BP/HR/SpO2 q5min; escalate to MD if SBP <90 or new hypoxia",
+      "owner": "rn",
+      "deadline": "ongoing"
+    },
+    {
+      "task": "Confirm reassignment of last monitored bed and resource plan",
+      "owner": "charge_nurse",
+      "deadline": "now"
+    },
+    {
+      "task": "Repeat troponin at 1–3h",
+      "owner": "rn",
+      "deadline": "<3h"
+    }
+  ],
+  "review_note": {
+    "tier_chosen": "now",
+    "alternative_tier": "soon",
+    "confidence_in_call": "high",
+    "why_this_tier": [
+      "Classic ACS presentation in high-risk patient (R-ACS-01)",
+      "Hypotension SBP 92 + tachycardia HR 118 (R-VITALS-HYPOTN, R-VITALS-TACHY)",
+      "Severe pain 8/10 with concerning vitals meets R-ESI-T2",
+      "Door-to-ECG SLA already breached"
+    ],
+    "would_downgrade_if": [
+      "ECG clearly normal AND troponin negative AND BP normalizes spontaneously AND pain resolves",
+      "Pain reproducible on palpation with benign workup"
+    ],
+    "would_upgrade_if": [
+      "STEMI on ECG (→ ESI 1, cath lab activation)",
+      "SBP drops <90 or altered mental status (cardiogenic shock)",
+      "New hypoxia <92% or pulmonary edema"
+    ],
+    "subject_to_review": true
+  },
+  "meta": {
+    "model": "claude-opus-4-7",
+    "rule_pack": "esi-v4-2026-05",
+    "generated_at": "2026-05-01T19:36:31.112886+00:00"
+  }
+}

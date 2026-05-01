@@ -1,0 +1,261 @@
+{
+  "case_id": "ER-0050",
+  "patient_id": "P009",
+  "encounter": {
+    "arrival_time": "2026-05-01T10:08:00"
+  },
+  "patient": {
+    "age": 23,
+    "sex": "F"
+  },
+  "urgency": {
+    "tier": "now",
+    "confidence": "high",
+    "info_gaps": [
+      "time of shrimp ingestion",
+      "progression of swelling over last 5-10 min",
+      "any prior intubation for allergic reactions",
+      "self-administered epinephrine pre-arrival?"
+    ]
+  },
+  "constraints": {
+    "resource": [
+      {
+        "monitored_beds_free": 1,
+        "note": "last monitored bed — anaphylaxis case warrants it"
+      },
+      {
+        "rn_available": 3,
+        "md_available": 1
+      }
+    ],
+    "time": [
+      {
+        "wait_min": 7,
+        "note": "patient has waited 7 min; anaphylaxis needs epi NOW"
+      },
+      {
+        "queue_now_tier_count": 4,
+        "note": "4 other 'now' tier patients ahead in queue"
+      }
+    ],
+    "warnings": [
+      "Mucosal swelling + wheeze + tachycardia + borderline-low SBP after shellfish in known allergic patient = anaphylaxis criteria met; epinephrine should not be delayed for hives",
+      "SpO2 95% and SBP 108 are trending toward decompensation — reassess q5min",
+      "Last monitored bed — coordinate with charge nurse"
+    ]
+  },
+  "hypotheses": [
+    {
+      "name": "Anaphylaxis (shellfish)",
+      "confidence": "high",
+      "supporting_signals": [
+        "known shellfish allergy with documented exposure (shrimp)",
+        "lip and tongue swelling (mucosal involvement)",
+        "expiratory wheeze (respiratory compromise)",
+        "HR 110, RR 22 (sympathetic response)",
+        "SBP 108 — borderline, trending toward hypotension"
+      ],
+      "rules_against": [
+        "no hives yet",
+        "no stridor",
+        "SpO2 still 95%"
+      ]
+    },
+    {
+      "name": "Isolated angioedema without systemic involvement",
+      "confidence": "low",
+      "supporting_signals": [
+        "lip/tongue swelling"
+      ],
+      "rules_against": [
+        "wheeze present = respiratory compromise = systemic",
+        "tachycardia",
+        "clear allergen trigger"
+      ]
+    },
+    {
+      "name": "Asthma exacerbation",
+      "confidence": "very_low",
+      "supporting_signals": [
+        "wheeze",
+        "RR 22"
+      ],
+      "rules_against": [
+        "no asthma history",
+        "lip/tongue swelling not explained",
+        "clear allergen trigger"
+      ]
+    }
+  ],
+  "actions": {
+    "immediate": [
+      {
+        "emoji": "🔴",
+        "action": "IM epinephrine 0.3 mg anterolateral thigh NOW",
+        "reason": "Anaphylaxis criteria met (mucosal + respiratory after known allergen); epi is first-line and time-critical.",
+        "constraints_checked": [
+          {
+            "check": "epinephrine contraindication",
+            "result": "none — young adult, no cardiac history",
+            "source": "patient history"
+          },
+          {
+            "check": "weight-based dose",
+            "result": "adult dose 0.3 mg appropriate",
+            "source": "R-ANAPH-01"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Place on monitor in resus/monitored bed; IV access x2; supine with legs elevated",
+        "reason": "Borderline SBP 108 + tachycardia; needs continuous monitoring and IV access for fluids/repeat epi.",
+        "constraints_checked": [
+          {
+            "check": "monitored bed availability",
+            "result": "1 free — claim it",
+            "source": "ed_state.monitored_beds"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Supplemental O2, albuterol neb for wheeze; prepare H1/H2 blockers + IV methylprednisolone as adjuncts",
+        "reason": "Active bronchospasm; adjuncts per anaphylaxis protocol after epi.",
+        "constraints_checked": [
+          {
+            "check": "albuterol contraindication",
+            "result": "none",
+            "source": "patient history"
+          }
+        ]
+      }
+    ],
+    "monitor": [
+      {
+        "emoji": "🟢",
+        "action": "Reassess vitals + airway q5min for 30 min; watch for biphasic reaction ≥4–6h",
+        "reason": "Anaphylaxis can rebound; observation window standard; redose epi q5–15min if symptoms persist.",
+        "constraints_checked": []
+      },
+      {
+        "emoji": "🟢",
+        "action": "Repeat dose of IM epinephrine if no improvement in 5–15 min; consider IV epi drip if refractory",
+        "reason": "Up to 1/3 of anaphylaxis cases need a second dose.",
+        "constraints_checked": []
+      }
+    ],
+    "escalate_or_redirect": [
+      {
+        "emoji": "🟡",
+        "action": "Notify MD immediately; secure last monitored bed via charge nurse",
+        "reason": "Only 1 MD available and last monitored bed — needs coordination given 4 other 'now' patients in queue.",
+        "constraints_checked": [
+          {
+            "check": "MD availability",
+            "result": "1 of 2 available",
+            "source": "ed_state.staffing"
+          },
+          {
+            "check": "monitored bed",
+            "result": "1 of 4 free",
+            "source": "ed_state.monitored_beds"
+          }
+        ]
+      }
+    ]
+  },
+  "explanation": {
+    "summary": "23F with known shellfish allergy presents with mucosal swelling (lip/tongue) plus respiratory compromise (wheeze, RR 22) within minutes of shrimp ingestion — meets anaphylaxis criteria. Vitals show tachycardia (HR 110) and borderline SBP (108), suggesting early circulatory involvement. IM epinephrine is indicated NOW; do not wait for hives or hypotension. Tier = now, ESI 1-2.",
+    "citations": [
+      {
+        "rule_id": "R-ANAPH-01",
+        "signal": "mucosal swelling + wheeze after shellfish exposure in known-allergic patient"
+      },
+      {
+        "rule_id": "R-VITALS-TACHY",
+        "signal": "HR 110 at presentation"
+      },
+      {
+        "rule_id": "R-ESI-T2",
+        "signal": "high-risk situation (anaphylaxis in progress)"
+      },
+      {
+        "rule_id": "R-ESI-T1",
+        "signal": "may require life-saving intervention if airway compromises"
+      }
+    ]
+  },
+  "checklist": [
+    {
+      "task": "Administer IM epinephrine 0.3 mg anterolateral thigh",
+      "owner": "rn",
+      "deadline": "now",
+      "status": "pending"
+    },
+    {
+      "task": "Place on cardiac monitor + pulse ox + IV x2 in monitored bed",
+      "owner": "rn",
+      "deadline": "<5min",
+      "status": "pending"
+    },
+    {
+      "task": "MD bedside evaluation; assess airway, decide on second epi dose / IV fluids / steroids",
+      "owner": "physician",
+      "deadline": "<5min",
+      "status": "pending"
+    },
+    {
+      "task": "Confirm monitored bed assignment and reshuffle queue if needed",
+      "owner": "charge_nurse",
+      "deadline": "now",
+      "status": "pending"
+    },
+    {
+      "task": "Reassess vitals + airway q5min for first 30 min, then q15min",
+      "owner": "rn",
+      "deadline": "ongoing",
+      "status": "pending"
+    },
+    {
+      "task": "Observe minimum 4–6h for biphasic reaction before disposition",
+      "owner": "physician",
+      "deadline": "shift_end",
+      "status": "pending"
+    },
+    {
+      "task": "Discharge teaching: epi-pen technique, allergen avoidance, allergy/immunology referral",
+      "owner": "rn",
+      "deadline": "shift_end",
+      "status": "pending"
+    }
+  ],
+  "review_note": {
+    "tier_chosen": "now",
+    "alternative_tier": "soon",
+    "confidence_in_call": "high",
+    "subject_to_review": true,
+    "why_this_tier": [
+      "Anaphylaxis is a time-critical diagnosis — minutes matter",
+      "Patient meets WAO anaphylaxis criteria: mucosal involvement + respiratory compromise after known allergen",
+      "Vitals trending wrong direction (tachycardia, borderline SBP)",
+      "Conservative bias: undertreated anaphylaxis = airway loss / arrest"
+    ],
+    "would_downgrade_if": [
+      "Symptoms fully resolve with single epi dose, vitals normalize, no recurrence over 4-6h obs",
+      "Re-evaluation reveals isolated localized angioedema without systemic features"
+    ],
+    "would_upgrade_if": [
+      "Stridor develops or voice changes",
+      "SpO2 drops <92% or SBP <100",
+      "Altered mental status",
+      "Failure to respond to first epi dose"
+    ]
+  },
+  "meta": {
+    "model": "claude-opus-4-7",
+    "rule_pack": "esi-v4-2026-05",
+    "generated_at": "2026-05-01T19:41:21.028126+00:00"
+  }
+}

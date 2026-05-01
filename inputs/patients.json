@@ -1,0 +1,534 @@
+[
+  {
+    "case_id": "ER-0042",
+    "patient_id": "P001",
+    "name": "Maria Hernandez",
+    "age": 58,
+    "sex": "F",
+    "arrival_time": "2026-05-01T08:14:00",
+    "chief_complaint": "Chest pain radiating to left arm, sweating, 35 min duration",
+    "vitals": {
+      "hr": 118,
+      "bp_sys": 92,
+      "bp_dia": 58,
+      "spo2": 94,
+      "temp_c": 36.9,
+      "rr": 22
+    },
+    "history": [
+      "HTN",
+      "T2DM",
+      "smoker"
+    ],
+    "medications": [
+      "lisinopril 20mg",
+      "metformin 1000mg"
+    ],
+    "allergies": [
+      "penicillin"
+    ],
+    "pain_score": 8,
+    "nurse_notes": "diaphoretic, anxious, pain 8/10, refuses to lie flat",
+    "prior_visits": {
+      "count": 2,
+      "last_reason": "HTN follow-up"
+    },
+    "timeline": [
+      {
+        "ts": "2026-05-01T08:14:00",
+        "event": "arrival"
+      },
+      {
+        "ts": "2026-05-01T08:18:00",
+        "event": "vitals"
+      },
+      {
+        "ts": "2026-05-01T08:21:00",
+        "event": "nurse_note"
+      }
+    ]
+  },
+  {
+    "case_id": "ER-0043",
+    "patient_id": "P002",
+    "name": "Jordan Lee",
+    "age": 17,
+    "sex": "F",
+    "arrival_time": "2026-05-01T08:21:00",
+    "chief_complaint": "Twisted ankle playing soccer 1hr ago, can bear partial weight",
+    "vitals": {
+      "hr": 82,
+      "bp_sys": 126,
+      "bp_dia": 78,
+      "spo2": 99,
+      "temp_c": 37.0,
+      "rr": 16
+    },
+    "history": [],
+    "medications": [],
+    "allergies": [],
+    "pain_score": 5,
+    "nurse_notes": "right lateral ankle swollen, no obvious deformity, ROM limited by pain",
+    "prior_visits": {
+      "count": 0,
+      "last_reason": null
+    },
+    "timeline": [
+      {
+        "ts": "2026-05-01T08:21:00",
+        "event": "arrival"
+      },
+      {
+        "ts": "2026-05-01T08:28:00",
+        "event": "vitals"
+      },
+      {
+        "ts": "2026-05-01T08:30:00",
+        "event": "nurse_note"
+      }
+    ]
+  },
+  {
+    "case_id": "ER-0044",
+    "patient_id": "P003",
+    "name": "Aisha Patel",
+    "age": 44,
+    "sex": "F",
+    "arrival_time": "2026-05-01T08:33:00",
+    "chief_complaint": "Sudden severe headache, 'worst of life', vomited once",
+    "vitals": {
+      "hr": 104,
+      "bp_sys": 178,
+      "bp_dia": 102,
+      "spo2": 97,
+      "temp_c": 36.7,
+      "rr": 18
+    },
+    "history": [
+      "migraine"
+    ],
+    "medications": [
+      "sumatriptan PRN"
+    ],
+    "allergies": [],
+    "pain_score": 10,
+    "nurse_notes": "photophobic, neck stiff, says this is different from her usual migraines",
+    "prior_visits": {
+      "count": 1,
+      "last_reason": "migraine"
+    },
+    "timeline": [
+      {
+        "ts": "2026-05-01T08:33:00",
+        "event": "arrival"
+      },
+      {
+        "ts": "2026-05-01T08:36:00",
+        "event": "vitals"
+      },
+      {
+        "ts": "2026-05-01T08:39:00",
+        "event": "nurse_note"
+      }
+    ]
+  },
+  {
+    "case_id": "ER-0045",
+    "patient_id": "P004",
+    "name": "Marcus Johnson",
+    "age": 29,
+    "sex": "M",
+    "arrival_time": "2026-05-01T09:02:00",
+    "chief_complaint": "Fever 39.4 + productive cough x4 days, no shortness of breath",
+    "vitals": {
+      "hr": 98,
+      "bp_sys": 118,
+      "bp_dia": 72,
+      "spo2": 96,
+      "temp_c": 39.4,
+      "rr": 18
+    },
+    "history": [
+      "asthma"
+    ],
+    "medications": [
+      "albuterol PRN"
+    ],
+    "allergies": [],
+    "pain_score": 3,
+    "nurse_notes": "alert, coughing yellow sputum, lungs with right lower crackles",
+    "prior_visits": {
+      "count": 1,
+      "last_reason": "asthma exacerbation"
+    },
+    "timeline": [
+      {
+        "ts": "2026-05-01T09:02:00",
+        "event": "arrival"
+      },
+      {
+        "ts": "2026-05-01T09:08:00",
+        "event": "vitals"
+      },
+      {
+        "ts": "2026-05-01T09:11:00",
+        "event": "nurse_note"
+      }
+    ]
+  },
+  {
+    "case_id": "ER-0046",
+    "patient_id": "P005",
+    "name": "Emma Chen",
+    "age": 34,
+    "sex": "F",
+    "arrival_time": "2026-05-01T09:11:00",
+    "chief_complaint": "Small laceration on finger from kitchen knife, bleeding controlled",
+    "vitals": {
+      "hr": 76,
+      "bp_sys": 122,
+      "bp_dia": 80,
+      "spo2": 99,
+      "temp_c": 37.0,
+      "rr": 14
+    },
+    "history": [],
+    "medications": [],
+    "allergies": [],
+    "pain_score": 2,
+    "nurse_notes": "2cm laceration L index finger, clean edges, last tetanus 4y ago",
+    "prior_visits": {
+      "count": 0,
+      "last_reason": null
+    },
+    "timeline": [
+      {
+        "ts": "2026-05-01T09:11:00",
+        "event": "arrival"
+      },
+      {
+        "ts": "2026-05-01T09:18:00",
+        "event": "vitals"
+      },
+      {
+        "ts": "2026-05-01T09:20:00",
+        "event": "nurse_note"
+      }
+    ]
+  },
+  {
+    "case_id": "ER-0047",
+    "patient_id": "P006",
+    "name": "Robert Kim",
+    "age": 71,
+    "sex": "M",
+    "arrival_time": "2026-05-01T09:25:00",
+    "chief_complaint": "Confusion + slurred speech started 40 min ago, right arm weak",
+    "vitals": {
+      "hr": 88,
+      "bp_sys": 162,
+      "bp_dia": 94,
+      "spo2": 96,
+      "temp_c": 36.8,
+      "rr": 16
+    },
+    "history": [
+      "AFib",
+      "HTN"
+    ],
+    "medications": [
+      "apixaban 5mg",
+      "metoprolol 50mg"
+    ],
+    "allergies": [
+      "sulfa"
+    ],
+    "pain_score": 0,
+    "nurse_notes": "facial droop right side, NIHSS pending, last-known-well 40 min ago per wife",
+    "prior_visits": {
+      "count": 3,
+      "last_reason": "AFib rate control"
+    },
+    "timeline": [
+      {
+        "ts": "2026-05-01T09:25:00",
+        "event": "arrival"
+      },
+      {
+        "ts": "2026-05-01T09:27:00",
+        "event": "vitals"
+      },
+      {
+        "ts": "2026-05-01T09:29:00",
+        "event": "nurse_note"
+      }
+    ]
+  },
+  {
+    "case_id": "ER-0048",
+    "patient_id": "P007",
+    "name": "Sofia Ramirez",
+    "age": 6,
+    "sex": "F",
+    "arrival_time": "2026-05-01T09:40:00",
+    "chief_complaint": "Difficulty breathing + wheezing, asthma flare, used inhaler twice",
+    "vitals": {
+      "hr": 132,
+      "bp_sys": 100,
+      "bp_dia": 64,
+      "spo2": 91,
+      "temp_c": 37.1,
+      "rr": 32
+    },
+    "history": [
+      "asthma"
+    ],
+    "medications": [
+      "albuterol inhaler",
+      "fluticasone inhaler"
+    ],
+    "allergies": [
+      "dust mites"
+    ],
+    "pain_score": 4,
+    "nurse_notes": "audible wheeze, accessory muscle use, can speak short phrases only",
+    "prior_visits": {
+      "count": 4,
+      "last_reason": "asthma exacerbation"
+    },
+    "timeline": [
+      {
+        "ts": "2026-05-01T09:40:00",
+        "event": "arrival"
+      },
+      {
+        "ts": "2026-05-01T09:42:00",
+        "event": "vitals"
+      },
+      {
+        "ts": "2026-05-01T09:44:00",
+        "event": "nurse_note"
+      }
+    ]
+  },
+  {
+    "case_id": "ER-0049",
+    "patient_id": "P008",
+    "name": "David Okafor",
+    "age": 52,
+    "sex": "M",
+    "arrival_time": "2026-05-01T09:55:00",
+    "chief_complaint": "Lower abdominal pain x6 hr, nausea, no vomiting",
+    "vitals": {
+      "hr": 92,
+      "bp_sys": 134,
+      "bp_dia": 82,
+      "spo2": 98,
+      "temp_c": 37.6,
+      "rr": 18
+    },
+    "history": [
+      "GERD"
+    ],
+    "medications": [
+      "omeprazole 20mg"
+    ],
+    "allergies": [],
+    "pain_score": 7,
+    "nurse_notes": "RLQ tenderness, guarding, no rebound, last meal 8 hr ago",
+    "prior_visits": {
+      "count": 1,
+      "last_reason": "GERD"
+    },
+    "timeline": [
+      {
+        "ts": "2026-05-01T09:55:00",
+        "event": "arrival"
+      },
+      {
+        "ts": "2026-05-01T10:01:00",
+        "event": "vitals"
+      },
+      {
+        "ts": "2026-05-01T10:04:00",
+        "event": "nurse_note"
+      }
+    ]
+  },
+  {
+    "case_id": "ER-0050",
+    "patient_id": "P009",
+    "name": "Lily Tran",
+    "age": 23,
+    "sex": "F",
+    "arrival_time": "2026-05-01T10:08:00",
+    "chief_complaint": "Allergic reaction after eating shrimp, lips swelling, mild wheeze",
+    "vitals": {
+      "hr": 110,
+      "bp_sys": 108,
+      "bp_dia": 70,
+      "spo2": 95,
+      "temp_c": 37.0,
+      "rr": 22
+    },
+    "history": [
+      "shellfish allergy"
+    ],
+    "medications": [
+      "epipen carrier"
+    ],
+    "allergies": [
+      "shellfish"
+    ],
+    "pain_score": 3,
+    "nurse_notes": "lip and tongue swelling, mild expiratory wheeze, no stridor, no hives yet",
+    "prior_visits": {
+      "count": 1,
+      "last_reason": "allergic reaction"
+    },
+    "timeline": [
+      {
+        "ts": "2026-05-01T10:08:00",
+        "event": "arrival"
+      },
+      {
+        "ts": "2026-05-01T10:10:00",
+        "event": "vitals"
+      },
+      {
+        "ts": "2026-05-01T10:12:00",
+        "event": "nurse_note"
+      }
+    ]
+  },
+  {
+    "case_id": "ER-0051",
+    "patient_id": "P010",
+    "name": "Henry Walsh",
+    "age": 67,
+    "sex": "M",
+    "arrival_time": "2026-05-01T10:22:00",
+    "chief_complaint": "Fell at home, hit head, brief LOC, on blood thinners",
+    "vitals": {
+      "hr": 84,
+      "bp_sys": 142,
+      "bp_dia": 86,
+      "spo2": 97,
+      "temp_c": 36.9,
+      "rr": 16
+    },
+    "history": [
+      "AFib",
+      "HTN"
+    ],
+    "medications": [
+      "warfarin 5mg",
+      "atorvastatin 40mg"
+    ],
+    "allergies": [],
+    "pain_score": 4,
+    "nurse_notes": "small occipital hematoma, GCS 15 now, alert, last INR 2.8 last week",
+    "prior_visits": {
+      "count": 2,
+      "last_reason": "AFib follow-up"
+    },
+    "timeline": [
+      {
+        "ts": "2026-05-01T10:22:00",
+        "event": "arrival"
+      },
+      {
+        "ts": "2026-05-01T10:25:00",
+        "event": "vitals"
+      },
+      {
+        "ts": "2026-05-01T10:28:00",
+        "event": "nurse_note"
+      }
+    ]
+  },
+  {
+    "case_id": "ER-0052",
+    "patient_id": "P011",
+    "name": "Walter Brennan",
+    "age": 64,
+    "sex": "M",
+    "arrival_time": "2026-05-01T10:35:00",
+    "chief_complaint": "Just feeling weak and off, hard to describe",
+    "vitals": {
+      "hr": 76,
+      "bp_sys": 122,
+      "bp_dia": 78,
+      "spo2": 98,
+      "temp_c": 36.9,
+      "rr": 14
+    },
+    "history": [
+      "HTN"
+    ],
+    "medications": [
+      "amlodipine 5mg"
+    ],
+    "allergies": [],
+    "pain_score": 2,
+    "nurse_notes": "Patient looks ashen and unwell. Wife alarmed — says he 'looks gray' and 'this is not him'. Drowsy, slow to answer questions, won't make eye contact. Diaphoretic despite cool room. Strong gut feeling something is very wrong even though vitals are reassuring.",
+    "prior_visits": {
+      "count": 0,
+      "last_reason": null
+    },
+    "timeline": [
+      {
+        "ts": "2026-05-01T10:35:00",
+        "event": "arrival"
+      },
+      {
+        "ts": "2026-05-01T10:39:00",
+        "event": "vitals"
+      },
+      {
+        "ts": "2026-05-01T10:42:00",
+        "event": "nurse_note"
+      }
+    ]
+  },
+  {
+    "case_id": "ER-0053",
+    "patient_id": "P012",
+    "name": "Diana Chen",
+    "age": 28,
+    "sex": "F",
+    "arrival_time": "2026-05-01T10:48:00",
+    "chief_complaint": "Came in for routine check after gym workout, mom insisted",
+    "vitals": {
+      "hr": 142,
+      "bp_sys": 88,
+      "bp_dia": 54,
+      "spo2": 91,
+      "temp_c": 38.7,
+      "rr": 26
+    },
+    "history": [],
+    "medications": [],
+    "allergies": [],
+    "pain_score": 1,
+    "nurse_notes": "Patient looks well, calm, conversational. States she 'feels totally fine, just here because mom is overprotective'. Walking around easily, joking with staff. Says recent intense crossfit class + skipped lunch. Denies symptoms. Wants to go home.",
+    "prior_visits": {
+      "count": 0,
+      "last_reason": null
+    },
+    "timeline": [
+      {
+        "ts": "2026-05-01T10:48:00",
+        "event": "arrival"
+      },
+      {
+        "ts": "2026-05-01T10:52:00",
+        "event": "vitals"
+      },
+      {
+        "ts": "2026-05-01T10:55:00",
+        "event": "nurse_note"
+      }
+    ]
+  }
+]
