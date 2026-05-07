@@ -1,5 +1,27 @@
 # ER2 — Folder Structure × Dinesh Scorecard
 
+> **🟢 LIVE DEMO:** https://er-triage-v2-tjb2srbb2q-uw.a.run.app
+> **📦 Public repo:** https://github.com/anix-lynch/er-triage-v2
+> **☁️ Hosting:** Google Cloud Run · `us-west1` · scale-to-zero · $0 cost from $900 GCP credit
+> **🔐 Secrets:** ANTHROPIC_API_KEY wired via Secret Manager (revision `er-triage-v2-00004-xqq`)
+> **📅 Status:** v2 deployed 2026-05-07. Triage assessment + RAG retrieval + memory persistence + Ragas eval all live.
+
+---
+
+## v1 → v2 — what changed (the diff Dinesh's scorecard implicitly asked for)
+
+| Station | v1 (interview demo, scored 3.5) | v2 (this build, deployed) | Evidence file |
+|---------|-------------------------------|---------------------------|---------------|
+| **1 Deployment** | local Streamlit only | **Cloud Run + Docker + Artifact Registry** | `Dockerfile`, `deploy/cloudrun.sh`, live URL above |
+| **5 Vector DBs** | discussed, not built | **Chroma persistent collection, 23 cases indexed** | `app/retrieval/store.py`, `outputs/embeddings/chroma.db/` |
+| **6 Embeddings** | discussed, not visible | **Vertex AI `gemini-embedding-001` (3072-dim) + cache** | `app/retrieval/embed.py`, `outputs/embeddings/cache.json` |
+| **7 Data Extraction** | synthetic only (Dinesh-approved scope) | **synthetic + 3 cases extracted from real Kaggle PDF** | `scripts/gen_past_cases.py`, `inputs/past_cases/er2_kaggle_source.pdf` |
+| **8 Memory** | discussion-only | **Firestore session log, persists across scale-to-zero** | `app/memory.py` |
+
+The 4 stations already at 4.0 (Eval, LLMs, Frameworks, Alignment) are preserved and still pass.
+
+---
+
 Each file annotated with which station on Dinesh's 9-station scorecard it directly satisfies.
 
 Stations: 1=Deployment · 2=Evaluation · 3=LLMs (Thinking Core) · 4=Frameworks/Orchestration

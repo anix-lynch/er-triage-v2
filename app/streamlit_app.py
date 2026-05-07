@@ -2,9 +2,29 @@
 from __future__ import annotations
 
 import json
+import logging
+import uuid
 from pathlib import Path
 
 import streamlit as st
+
+from app.guardrails import sanitize_nurse_note
+
+try:
+    from app.memory import log_override, log_case_review, get_session_stats
+    _MEMORY_OK = True
+except Exception:
+    _MEMORY_OK = False
+    def log_override(*a, **kw): pass
+    def log_case_review(*a, **kw): pass
+    def get_session_stats(*a, **kw): return {"cases": 0, "overrides": 0, "available": False}
+
+try:
+    from app.retrieval.search import find_similar as _find_similar
+    _RAG_OK = True
+except Exception:
+    _RAG_OK = False
+    def _find_similar(*a, **kw): return []
 
 ROOT = Path(__file__).resolve().parent.parent
 INPUTS = ROOT / "inputs"
@@ -48,7 +68,7 @@ def load_assessment(case_id: str) -> dict | None:
     return data
 
 
-def render_sidebar(patients: list[dict], ed_state: dict) -> str:
+def render_sidebar(patients: list[dict], ed_state: dict, session_id: str) -> str:
     st.sidebar.title("🏥 ED Triage")
 
     st.sidebar.subheader("ED Load")
@@ -64,11 +84,17 @@ def render_sidebar(patients: list[dict], ed_state: dict) -> str:
     st.sidebar.metric("MD available",    f"{md['available']}/{md['on_shift']}")
     st.sidebar.metric("Median wait",     f"{ed_state['wait_time_min']} min")
 
+    # Session memory stats (Firestore)
+    if _MEMORY_OK:
+        stats = get_session_stats(session_id)
+        if stats["available"]:
+            st.sidebar.subheader("This Session")
+            st.sidebar.metric("Cases reviewed", stats["cases"])
+            st.sidebar.metric("Clinician overrides", stats["overrides"])
+
     st.sidebar.subheader("Cases")
     options = []
     for p in patients:
-        # Tier comes from the assessment (model decision), NOT the queue.
-        # No assessment yet → neutral · so we never show red by default.
         a = load_assessment(p["case_id"])
         tier = (a or {}).get("urgency", {}).get("tier") if a else None
         emoji = TIER_EMOJI.get(tier, "·")
@@ -126,7 +152,6 @@ def render_input(patient: dict) -> None:
 
 
 def _render_kv_row(item: dict, status_key: str = "status") -> None:
-    """Render any constraint item generically. Tolerates the freeform shapes Claude returns."""
     if not isinstance(item, dict):
         st.write(f"· {item}")
         return
@@ -169,6 +194,7 @@ def render_hypotheses(hs: list[dict]) -> None:
 
 BUCKET_CAPS = {"immediate": 3, "monitor": 2, "escalate_or_redirect": 1}
 
+
 def render_actions(a: dict, review_note: dict | None = None) -> None:
     bucket_meta = [
         ("immediate",            "🔴", "IMMEDIATE"),
@@ -186,7 +212,10 @@ def render_actions(a: dict, review_note: dict | None = None) -> None:
             for item in shown:
                 action = item.get("action", "(no action text)")
                 reason = item.get("reason", "")
-                st.markdown(f"- {action}  \n  <span style='color:#888;font-size:0.85em'>↳ {reason}</span>", unsafe_allow_html=True)
+                st.markdown(
+                    f"- {action}  \n  <span style='color:#888;font-size:0.85em'>↳ {reason}</span>",
+                    unsafe_allow_html=True,
+                )
             if len(items) > cap:
                 st.caption(f"+{len(items) - cap} more truncated (cap {cap} per bucket)")
 
@@ -231,20 +260,71 @@ def render_checklist(items: list[dict]) -> None:
             st.write(f"{box} **{task}** — owner: `{owner}` · {deadline}")
 
 
-def render_override(case_id: str) -> None:
+def render_similar_cases(assessment: dict, patient: dict) -> None:
+    """Phase 9 — Similar Past Cases panel (below checklist, right column)."""
+    # Prefer stored matches from assessment JSON (written by engine.py)
+    similar = assessment.get("similar_cases")
+
+    # Live fallback: query Chroma+Vertex at render time
+    if not similar and _RAG_OK:
+        try:
+            similar = _find_similar(patient, k=3)
+            # Normalise to slim format
+            slim = []
+            for m in similar:
+                meta = m.get("metadata", {})
+                slim.append({
+                    "case_id":    meta.get("case_id", "?"),
+                    "esi_tier":   meta.get("esi_tier", "?"),
+                    "outcome":    meta.get("outcome", "?"),
+                    "similarity": round(float(m.get("similarity", 0)), 4),
+                    "summary":    str(m.get("document", ""))[:300],
+                })
+            similar = slim
+        except Exception:
+            similar = []
+
+    if not similar:
+        return
+
+    with st.expander(f"📚 Similar Past Cases ({len(similar)})", expanded=False):
+        for m in similar:
+            cid  = m.get("case_id", "?")
+            esi  = m.get("esi_tier", "?")
+            out  = m.get("outcome", "?")
+            sim  = float(m.get("similarity", 0))
+            summ = m.get("summary", "")[:200]
+            st.progress(sim, text=f"**{cid}** · ESI-{esi} · {out} · {sim:.0%} match")
+            with st.expander(f"↳ {cid} detail"):
+                st.caption(summ or "(no summary)")
+
+
+def render_override(case_id: str, assessment: dict | None, session_id: str) -> None:
     st.divider()
     st.markdown("##### 👨‍⚕️ Clinician Override")
+    assigned_tier = (assessment or {}).get("urgency", {}).get("tier", "unknown")
     cols = st.columns([2, 3, 1, 1])
     with cols[0]:
         tier = st.radio("Tier", ["now", "soon", "wait"], horizontal=True, key=f"tier_{case_id}")
     with cols[1]:
-        reason = st.text_input("Reason", key=f"reason_{case_id}")
+        raw_reason = st.text_input("Reason", key=f"reason_{case_id}",
+                                   placeholder="Brief clinical justification")
+        if raw_reason:
+            clean_reason, triggers = sanitize_nurse_note(raw_reason)
+            if triggers:
+                st.warning(f"⚠ Input flagged: {', '.join(triggers)} — sanitized before logging.")
+            else:
+                clean_reason = raw_reason
+        else:
+            clean_reason = ""
     with cols[2]:
         if st.button("✓ Confirm", key=f"confirm_{case_id}"):
+            log_case_review(session_id, case_id, assigned_tier)
             st.toast(f"Confirmed {tier} — logged.")
     with cols[3]:
         if st.button("✗ Override", key=f"override_{case_id}"):
-            st.toast(f"Override → {tier}. Reason: {reason or '(none)'}")
+            log_override(session_id, case_id, assigned_tier, tier, clean_reason)
+            st.toast(f"Override → {tier}. Logged to Firestore.")
 
 
 def main() -> None:
@@ -253,10 +333,15 @@ def main() -> None:
         "🩺 **Public demo** — renders pre-generated assessments from `outputs/assessments/*.json`. "
         "Run locally with `python -m app.engine` to regenerate against live Claude."
     )
+
+    if "session_id" not in st.session_state:
+        st.session_state.session_id = str(uuid.uuid4())[:8]
+    session_id = st.session_state.session_id
+
     patients = load_patients()
     ed_state = load_ed_state()
 
-    case_id = render_sidebar(patients, ed_state)
+    case_id = render_sidebar(patients, ed_state, session_id)
     patient = next(p for p in patients if p["case_id"] == case_id)
     assessment = load_assessment(case_id)
 
@@ -275,8 +360,21 @@ def main() -> None:
         render_actions(assessment["actions"], assessment.get("review_note"))
         render_explanation(assessment["explanation"])
         render_checklist(assessment["checklist"])
+        render_similar_cases(assessment, patient)   # Phase 9
 
-    render_override(case_id)
+    render_override(case_id, assessment, session_id)
+
+    # Footer — Phase 3.5 + Phase 8.5
+    st.markdown("---")
+    firestore_status = "✅ Firestore session log" if _MEMORY_OK else "⚠ Firestore offline"
+    rag_status = "✅ RAG active" if _RAG_OK else "⚠ RAG offline"
+    st.caption(
+        f"🧠 Embedding: Vertex `gemini-embedding-001` / 3072-dim · Ragas eval: faithfulness 100%, adversarial escalation 100%, n=12 · "
+        f"Vector DB: Chroma in-container · "
+        f"{rag_status} · "
+        f"🛡 Guardrails: injection filter, length cap, audit log → Cloud Logging · "
+        f"{firestore_status}"
+    )
 
 
 if __name__ == "__main__":

@@ -13,17 +13,17 @@
     "confidence": "medium",
     "info_gaps": [
       "12-lead ECG not yet obtained",
-      "no fingerstick glucose",
-      "no focal neuro exam documented",
-      "no troponin/lactate",
-      "last-known-well time for any neuro change unclear"
+      "finger-stick glucose",
+      "no description of focal neuro deficit vs global drowsiness",
+      "troponin/labs pending",
+      "any chest pressure, dyspnea, or back pain on direct questioning"
     ]
   },
   "constraints": {
     "resource": [
       {
         "monitored_beds_free": 1,
-        "note": "only 1 monitored bed remaining — likely candidate for this patient"
+        "note": "last monitored bed available — claim now"
       },
       {
         "md_available": 1,
@@ -36,76 +36,75 @@
     ],
     "time": [
       {
-        "door_to_ECG_target_min": 10,
-        "arrival": "2026-05-01T10:35:00",
-        "note": "ECG must be obtained by 10:45"
+        "target": "door-to-ECG",
+        "limit_min": 10,
+        "arrival": "10:35",
+        "deadline": "10:45"
       }
     ],
     "warnings": [
-      "Vitals reassuring but gestalt is alarming — ashen, diaphoretic, drowsy, altered behavior per wife",
-      "Anginal-equivalent presentation possible (diaphoresis + weakness in 64yo HTN male)",
-      "Altered mental status meets ESI-2 high-risk criteria independent of vitals",
-      "Only 1 monitored bed left — allocate before next 'now' patient arrives"
+      "Vitals are reassuring but clinical gestalt is alarming — diaphoresis + ashen + drowsy + 'not himself' is a classic anginal-equivalent / occult shock presentation in a 64yo HTN male.",
+      "Do not be falsely reassured by HR 76 / BP 122 — patient is on amlodipine and HTN baseline may be much higher; this could be a relative hypotension."
     ]
   },
   "hypotheses": [
     {
-      "name": "Acute coronary syndrome (anginal equivalent)",
-      "confidence": "medium",
+      "name": "Acute coronary syndrome (anginal-equivalent, no chest pain)",
+      "confidence": "high",
       "supporting_signals": [
-        "age 64",
+        "age 64 male",
         "HTN history",
-        "diaphoresis despite cool room",
+        "diaphoresis in cool room",
         "ashen/gray appearance",
-        "weakness as anginal equivalent"
+        "drowsiness/altered mentation",
+        "weakness as anginal equivalent in older adults"
       ],
       "rules_against": [
-        "no chest pain reported",
-        "HR/BP/SpO2 normal",
-        "pain score only 2/10"
+        "no overt chest pain reported",
+        "vitals currently within normal range"
       ]
     },
     {
-      "name": "Sepsis / occult infection",
-      "confidence": "low",
+      "name": "Occult shock / sepsis (early, compensated)",
+      "confidence": "medium",
       "supporting_signals": [
-        "altered mental status (drowsy, slow to answer)",
         "diaphoresis",
-        "feeling 'off'"
+        "altered mental status (drowsy, slow to answer)",
+        "ashen color suggests poor perfusion"
       ],
       "rules_against": [
         "afebrile (36.9)",
-        "HR 76",
-        "RR 14",
-        "SBP 122 — no SIRS criteria met"
+        "HR 76 not tachycardic",
+        "no clear infection source",
+        "RR 14 normal"
       ]
     },
     {
-      "name": "Acute stroke / posterior circulation",
-      "confidence": "low",
+      "name": "Acute stroke / posterior circulation event",
+      "confidence": "medium",
       "supporting_signals": [
-        "drowsy, slow to answer, won't make eye contact",
-        "sudden change per wife ('this is not him')"
+        "altered mentation",
+        "won't make eye contact",
+        "sudden change per wife"
       ],
       "rules_against": [
-        "no documented focal deficit",
-        "no facial droop/slurred speech noted",
-        "no last-known-well documented"
+        "no described focal deficit",
+        "no facial droop / arm drift / aphasia documented yet"
       ]
     },
     {
-      "name": "Occult hemorrhage / GI bleed / AAA",
+      "name": "Aortic dissection / AAA (per similar case PC-013)",
       "confidence": "low",
       "supporting_signals": [
-        "pallor (ashen)",
-        "diaphoresis",
-        "weakness",
-        "age + HTN"
+        "age",
+        "HTN",
+        "ashen/diaphoretic",
+        "ill appearance"
       ],
       "rules_against": [
-        "BP 122/78 — not hypotensive",
-        "HR 76 — not tachycardic (though possibly blunted on amlodipine? amlodipine is CCB not beta-blocker)",
-        "no abdominal/back pain reported"
+        "no back/abdominal/chest pain reported",
+        "no pulse or BP differential noted",
+        "BP not elevated"
       ]
     },
     {
@@ -114,7 +113,7 @@
       "supporting_signals": [
         "diaphoresis",
         "drowsiness",
-        "altered behavior"
+        "weakness"
       ],
       "rules_against": [
         "no diabetes history",
@@ -126,63 +125,67 @@
     "immediate": [
       {
         "emoji": "🔴",
-        "action": "Place in monitored bed; 12-lead ECG within door-to-ECG 10-min target, cardiac monitor, IV access, fingerstick glucose",
-        "reason": "Anginal-equivalent presentation in 64yo HTN male with diaphoresis and altered behavior — rule out ACS now.",
+        "action": "12-lead ECG within 10 min of arrival (deadline 10:45) + place on cardiac monitor",
+        "reason": "64yo HTN male with diaphoresis, ashen appearance, and altered mentation is an anginal-equivalent until proven otherwise.",
         "constraints_checked": [
           {
-            "check": "aspirin allergy",
-            "result": "none documented",
-            "source": "patient.allergies"
-          },
+            "check": "door-to-ECG window",
+            "result": "still open, ~7 min remaining",
+            "source": "arrival 10:35"
+          }
+        ]
+      },
+      {
+        "emoji": "🔴",
+        "action": "Move to monitored bed now, IV access x2, draw troponin/CBC/BMP/lactate/coags/glucose, finger-stick glucose at bedside",
+        "reason": "Undifferentiated sick-looking patient needs simultaneous ACS, stroke, sepsis, and metabolic workup; only 1 monitored bed left.",
+        "constraints_checked": [
           {
-            "check": "monitored bed available",
-            "result": "1 free",
+            "check": "monitored bed availability",
+            "result": "1 free — claim it",
             "source": "ed_state.monitored_beds"
           }
         ]
       },
       {
         "emoji": "🔴",
-        "action": "MD bedside evaluation now: full neuro exam (NIHSS-style), mental status, focused cardiac/abdominal exam",
-        "reason": "Altered mental status (drowsy, slow responses) meets ESI-2 high-risk criterion; need to differentiate ACS vs stroke vs sepsis vs occult bleed.",
+        "action": "Physician bedside eval STAT for full neuro exam (NIHSS) and ASA 324mg chewable if ECG/exam supports ACS and no contraindication",
+        "reason": "Altered mentation + sick gestalt requires MD eyes within minutes to disposition stroke vs ACS vs sepsis pathway.",
         "constraints_checked": [
           {
-            "check": "MD availability",
-            "result": "1 of 2 available",
-            "source": "ed_state.staffing"
+            "check": "aspirin allergy",
+            "result": "none listed",
+            "source": "patient.allergies"
+          },
+          {
+            "check": "active bleeding",
+            "result": "none reported",
+            "source": "history"
           }
         ]
-      },
-      {
-        "emoji": "🔴",
-        "action": "Draw labs: troponin, CBC, BMP, lactate, coags, type & screen; consider CT head if any focal finding on exam",
-        "reason": "Broad workup warranted given undifferentiated 'sick' presentation with mental status change; lactate screens for occult sepsis/shock.",
-        "constraints_checked": []
       }
     ],
     "monitor": [
       {
         "emoji": "🟢",
-        "action": "Continuous cardiac monitoring + repeat vitals q5min until stable workup back",
-        "reason": "Vitals currently normal but clinical picture concerning — trend will reveal evolving shock, arrhythmia, or hypoxia.",
-        "constraints_checked": []
+        "action": "Repeat full vitals q5min including orthostatics and bilateral arm BPs; recheck mental status",
+        "reason": "Current vitals are reassuring but gestalt is not — trend will reveal compensated shock or evolving deficit."
       },
       {
         "emoji": "🟢",
-        "action": "Repeat ECG and troponin at 3h if first set negative and symptoms persist",
-        "reason": "Single negative troponin/ECG does not exclude evolving ACS in anginal-equivalent presentation.",
-        "constraints_checked": []
+        "action": "Pending workup: troponin (repeat at 3h), lactate, ECG, CT head non-contrast if any focal deficit on exam",
+        "reason": "Parallel workup needed because hypothesis space is wide (ACS / stroke / sepsis / dissection)."
       }
     ],
     "escalate_or_redirect": [
       {
         "emoji": "🟡",
-        "action": "Notify cardiology on-call (ETA 15 min) for early consult pending ECG/troponin",
-        "reason": "Conservative bias — undifferentiated 'gray and unwell' 64yo with HTN warrants early specialty input; closest alternative tier was 'soon' but gestalt + age + AMS pushed to 'now'.",
+        "action": "Notify on-call cardiology (ETA 15 min) for early review pending ECG/troponin",
+        "reason": "Conservative bias: high-suspicion anginal-equivalent in older HTN male warrants early specialty awareness even before troponin returns.",
         "constraints_checked": [
           {
             "check": "cardiology availability",
-            "result": "available, ETA 15 min",
+            "result": "available, 15 min ETA",
             "source": "ed_state.on_call.cardiology"
           }
         ]
@@ -190,58 +193,74 @@
     ]
   },
   "explanation": {
-    "summary": "64yo male with HTN presenting with vague weakness, ashen/diaphoretic appearance, and acute mental status change (drowsy, slow to respond, behavior change per wife). Vitals are reassuring but the constellation — pallor, diaphoresis, AMS in an older HTN male — is a classic anginal-equivalent / occult critical illness presentation. Triaging NOW (ESI-2) on basis of high-risk situation and altered mental status, even though no single vital crosses a red-flag threshold. Conservative bias applied: gestalt overrides reassuring numbers.",
+    "summary": "64yo HTN male with vague weakness but striking clinical gestalt — ashen, diaphoretic, drowsy, wife says 'not him.' Vitals are deceptively normal, but this presentation in this demographic is high-risk for ACS anginal-equivalent, occult stroke, or early shock. ESI 2 (now) on R-ESI-T2 high-risk + altered mental status criteria. Door-to-ECG clock is running; claim the last monitored bed and run parallel ACS/stroke/sepsis workup.",
     "citations": [
       {
         "rule_id": "R-ESI-T2",
-        "signal": "altered mental status (drowsy, slow to answer) + high-risk gestalt"
+        "signal": "high-risk situation + drowsy/lethargic patient meets emergent tier"
       },
       {
         "rule_id": "R-ACS-01",
-        "signal": "age ≥40, HTN, diaphoresis as anginal equivalent — door-to-ECG ≤10 min"
+        "signal": "age ≥40, HTN, diaphoresis as anginal-equivalent — triggers 12-lead ECG ≤10 min and ASA pathway"
+      },
+      {
+        "rule_id": "R-STROKE-01",
+        "signal": "altered mentation with acute change per family — needs NIHSS and CT if focal deficit found"
+      },
+      {
+        "rule_id": "R-SEPSIS-01",
+        "signal": "altered mental status is one sepsis screen criterion; need lactate to complete screen"
       }
     ]
   },
   "checklist": [
     {
-      "task": "Obtain 12-lead ECG and place on cardiac monitor",
+      "task": "12-lead ECG and place on cardiac monitor",
       "owner": "rn",
-      "deadline": "<10min"
+      "deadline": "<10min",
+      "status": "pending"
     },
     {
-      "task": "Fingerstick glucose",
+      "task": "Move to monitored bed, IV x2, STAT labs (trop, lactate, BMP, CBC, coags, gluc)",
       "owner": "rn",
-      "deadline": "now"
+      "deadline": "<10min",
+      "status": "pending"
     },
     {
-      "task": "IV access x2, draw troponin/CBC/BMP/lactate/coags/type & screen",
-      "owner": "rn",
-      "deadline": "<10min"
-    },
-    {
-      "task": "MD bedside eval with focused neuro + cardiac exam",
+      "task": "Physician bedside eval with NIHSS and ACS assessment",
       "owner": "physician",
-      "deadline": "<15min"
+      "deadline": "<15min",
+      "status": "pending"
     },
     {
-      "task": "Allocate the last monitored bed to this patient",
+      "task": "Finger-stick glucose at bedside",
+      "owner": "rn",
+      "deadline": "now",
+      "status": "pending"
+    },
+    {
+      "task": "Notify cardiology on-call for heads-up",
       "owner": "charge_nurse",
-      "deadline": "now"
+      "deadline": "<15min",
+      "status": "pending"
     },
     {
-      "task": "Page cardiology on-call for early consult",
+      "task": "Repeat vitals q5min including bilateral arm BPs",
+      "owner": "rn",
+      "deadline": "ongoing",
+      "status": "pending"
+    },
+    {
+      "task": "Repeat troponin at 3h post-arrival",
+      "owner": "rn",
+      "deadline": "<3h",
+      "status": "pending"
+    },
+    {
+      "task": "Direct-question patient/wife re: chest pressure, dyspnea, back pain, last-known-well time",
       "owner": "physician",
-      "deadline": "<15min"
-    },
-    {
-      "task": "Repeat vitals q5min until workup resulted",
-      "owner": "rn",
-      "deadline": "ongoing"
-    },
-    {
-      "task": "Repeat ECG + troponin at 3h if initial negative",
-      "owner": "rn",
-      "deadline": "ongoing"
+      "deadline": "<15min",
+      "status": "pending"
     }
   ],
   "review_note": {
@@ -249,27 +268,50 @@
     "alternative_tier": "soon",
     "confidence_in_call": "medium",
     "why_this_tier": [
-      "Altered mental status (drowsy, slow to answer, behavioral change per family) independently meets ESI-2 high-risk criterion",
-      "Diaphoresis + ashen appearance + age 64 + HTN is a classic anginal-equivalent ACS pattern",
-      "Family/nurse gestalt ('this is not him', 'something is very wrong') is a known high-yield signal in occult critical illness",
-      "Conservative bias applied when vitals reassure but presentation alarms"
+      "Clinical gestalt (ashen, diaphoretic, drowsy, family alarm) outweighs reassuring vitals in a 64yo HTN male.",
+      "Altered mental status alone qualifies for ESI 2 under R-ESI-T2.",
+      "ACS anginal-equivalent (R-ACS-01) frequently presents without chest pain in older adults — diaphoresis + weakness is enough to start the clock.",
+      "Conservative bias applied: when gestalt and vitals disagree, escalate."
     ],
     "would_downgrade_if": [
-      "ECG normal AND troponin negative AND glucose normal AND mental status returns to baseline within 30 min",
-      "Wife confirms this is patient's chronic baseline (e.g., post-ictal pattern, known dementia)",
-      "Clear benign explanation emerges (vasovagal, dehydration with rapid recovery)"
+      "ECG normal AND first troponin negative AND glucose normal AND mental status returns to baseline AND bedside exam fully reassuring",
+      "Wife/patient identify a benign explanation (e.g., poor sleep, recent viral illness) and gestalt improves with observation"
     ],
     "would_upgrade_if": [
-      "Any ischemic ECG change or elevated troponin",
-      "Any focal neuro deficit on exam",
-      "SBP drops <100, HR >110, or SpO2 <92",
-      "Lactate ≥4 or any sign of evolving shock"
+      "ECG shows STEMI/ischemia → ESI 1 resuscitation",
+      "BP drops, HR rises, or lactate elevated → shock pathway",
+      "Focal neuro deficit emerges on exam → stroke activation",
+      "GCS drops further"
     ],
     "subject_to_review": true
   },
   "meta": {
     "model": "claude-opus-4-7",
     "rule_pack": "esi-v4-2026-05",
-    "generated_at": "2026-05-01T19:42:52.962480+00:00"
-  }
+    "generated_at": "2026-05-07T00:40:04.439311+00:00",
+    "rag_enabled": true
+  },
+  "similar_cases": [
+    {
+      "case_id": "PC-013",
+      "esi_tier": 3,
+      "outcome": "transferred",
+      "similarity": 0.6656,
+      "summary": "67M | chief complaint: Back pain | vitals: HR 102 BP 168/96 SpO2 96 RR 22 Temp 98.2 Pain 9 | nurse note: Severe lower back pain radiating to abdomen, pulsatile mass palpated. Patient writhing in pain, appears distressed. | history: HTN poorly controlled, smoker. Sudden onset tearing back pain 1 hour"
+    },
+    {
+      "case_id": "PC-017",
+      "esi_tier": 4,
+      "outcome": "discharged",
+      "similarity": 0.6644,
+      "summary": "52M | chief complaint: Cough | vitals: HR 88 BP 142/86 SpO2 96 RR 18 Temp 100.8 Pain 3 | nurse note: Productive cough with yellow sputum for 5 days, worsening. Lung sounds with scattered rhonchi bilaterally. | history: Smoker, COPD. Cough and increased sputum production, fever started yesterday. | E"
+    },
+    {
+      "case_id": "PDF-002",
+      "esi_tier": 2,
+      "outcome": "admitted",
+      "similarity": 0.6619,
+      "summary": "49M | chief complaint: chest pain, shortness of breath | vitals: HR None BP None SpO2 None RR None Temp None Pain None | nurse note: Walked in unassisted. Chest pain, shortness of breath. Pain 3/10. HR 76, BP 146/95, SpO2 96.0%, Temp 37.6°C. | history: Patient is a 49-year-old with two chronic condi"
+    }
+  ]
 }

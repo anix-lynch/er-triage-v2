@@ -15,7 +15,7 @@ Rules you must follow:
 6. Read `ed_state` to populate the `constraints` block: bed/staff availability, on-call ETAs, time-target breaches.
 7. Hypotheses must include rules_against entries when confidence is low — show your work.
 8. Follow-up checklist items must each have an owner role (charge_nurse, rn, physician) and a deadline (now, <Nmin, ongoing, shift_end).
-9. Review note: ALWAYS populate `review_note` to show the call is auditable, not blind. Include the tier chosen, the closest alternative considered, what specifically would downgrade (or upgrade) the call, and `subject_to_review: true`. This is the clinician's transparency window — it renders right under the next-actions block, not at the bottom.
+9. Review note: ALWAYS populate `review_note` to show the call is auditable, not blind. Include the tier chosen, the closest alternative considered, what specifically would downgrade (or upgrade) the call, and `subject_to_review: true`. This is the clinician transparency window — it renders right under the next-actions block, not at the bottom.
 """
 
 
@@ -138,9 +138,29 @@ TOOL_SCHEMA = {
 }
 
 
-def user_prompt(patient: dict, ed_state: dict, guidelines: str) -> str:
-    """Build the per-case user message."""
+def similar_cases_block(matches):
+    lines = ["<similar_past_cases>"]
+    for i, m in enumerate(matches, 1):
+        meta = m.get("metadata", {})
+        lines.append(f'  <case rank="{i}" similarity="{m.get("similarity", 0):.3f}">')
+        lines.append(f'    <case_id>{meta.get("case_id", m.get("case_id", "?"))}</case_id>')
+        lines.append(f'    <esi_tier>{meta.get("esi_tier", "?")}</esi_tier>')
+        lines.append(f'    <outcome>{meta.get("outcome", "?")}</outcome>')
+        lines.append(f'    <summary>{str(m.get("document", meta.get("summary", "")))[:300]}</summary>')
+        lines.append("  </case>")
+    lines.append("</similar_past_cases>")
+    return "\n".join(lines)
+
+
+def user_prompt(patient, ed_state, guidelines, similar_cases=None):
     import json
+    rag_block = ""
+    if similar_cases:
+        rag_block = (
+            "\n\n" + similar_cases_block(similar_cases) +
+            "\n\nThe similar past cases above are retrieved from historical ED records. "
+            "Use them as soft evidence — they inform pattern recognition but do not override clinical judgment or guideline rules."
+        )
     return f"""<patient_case>
 {json.dumps(patient, indent=2)}
 </patient_case>
@@ -151,6 +171,6 @@ def user_prompt(patient: dict, ed_state: dict, guidelines: str) -> str:
 
 <guidelines>
 {guidelines}
-</guidelines>
+</guidelines>{rag_block}
 
 Produce a triage assessment for this patient. Use the submit_assessment tool. All six panels required."""

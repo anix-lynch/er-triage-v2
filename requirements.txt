@@ -1,2 +1,7 @@
 anthropic>=0.40.0
 streamlit>=1.39.0
+google-cloud-aiplatform>=1.60.0
+chromadb>=0.5.0
+pdfplumber>=0.11.0
+google-cloud-firestore>=2.16.0
+ragas>=0.4.0

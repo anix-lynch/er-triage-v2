@@ -1,0 +1,44 @@
+{
+  "n_assessments": 12,
+  "n_valid_rule_ids": 16,
+  "rule_faithfulness_pct": 100.0,
+  "rag_context_rate_pct": 16.7,
+  "immediate_constraint_pct": 95.8,
+  "adversarial_escalation_pct": 100.0,
+  "median_confidence": "high",
+  "confidence_distribution": {
+    "high": 11,
+    "medium": 1,
+    "low": 0,
+    "very_low": 0
+  },
+  "detail": {
+    "rule_faithfulness": {
+      "pct": 100.0,
+      "valid": 39,
+      "total": 39,
+      "bad_examples": []
+    },
+    "rag_context_rate": {
+      "pct": 16.7,
+      "with_rag": 2,
+      "total": 12
+    },
+    "immediate_constraint": {
+      "pct": 95.8,
+      "with_checks": 23,
+      "total": 24
+    },
+    "adversarial_escalation": {
+      "pct": 100.0,
+      "correct": [
+        "ER-0052",
+        "ER-0053"
+      ],
+      "wrong": [],
+      "total": 2
+    }
+  },
+  "framework": "ragas-style deterministic eval (no LLM calls)",
+  "ragas_version": "0.4.3"
+}

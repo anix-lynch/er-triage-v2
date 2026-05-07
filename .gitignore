@@ -25,5 +25,9 @@ Thumbs.db
 .vscode/
 *.swp
 
-# project-local
+# project-local — NEVER push
 _archive/
+_private/
+
+# regenerable binaries
+outputs/embeddings/chroma.db/

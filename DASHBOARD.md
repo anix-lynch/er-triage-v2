@@ -132,4 +132,3 @@ shown in the main dashboard above.
 
 ## Project status
 
-Phase tracking + SLA + SHIPPED flag → see [SPEC.md](computer:///Users/anixlynch/dev/ER/SPEC.md) and [SLA.md](computer:///Users/anixlynch/dev/ER/SLA.md).
