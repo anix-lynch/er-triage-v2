@@ -25,9 +25,16 @@ Thumbs.db
 .vscode/
 *.swp
 
-# project-local — NEVER push
+# project-local
 _archive/
+
+# private — interview score, transcript, internal emails. NEVER commit / NEVER deploy.
 _private/
 
-# regenerable binaries
+# internal / presentation build artifacts
+SPEC.md
+SLA.md
+build_pptx.py
+pitch.pdf
+pitch.pptx
 outputs/embeddings/chroma.db/

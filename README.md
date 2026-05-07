@@ -37,8 +37,6 @@ The four stations already at 4.0 in v1 (Eval, LLMs, Frameworks, Alignment & Obse
 | **4** | **Frameworks / Orchestration** | [`app/engine.py`](app/engine.py) · [`inputs/ed_state.json`](inputs/ed_state.json) — RAG context + ED state injection + override capture |
 | **9** | **Alignment & Observability** | [`app/guardrails.py`](app/guardrails.py) — regex injection filter, length cap, override logging |
 
-Full file-to-station map: [`folder_structure_mapped.md`](folder_structure_mapped.md).
-
 ---
 
 ## Architecture
@@ -177,7 +175,4 @@ The script builds via Cloud Build → pushes to Artifact Registry → deploys to
 | [`outputs/eval_report.json`](outputs/eval_report.json) | Full Ragas output |
 | [`Dockerfile`](Dockerfile) | python:3.12-slim, Streamlit on `:8080` |
 | [`deploy/cloudrun.sh`](deploy/cloudrun.sh) | gcloud builds + run deploy + secret mount |
-| [`folder_structure_mapped.md`](folder_structure_mapped.md) | File-to-station map (the Rosetta Stone) |
-| [`DASHBOARD.md`](DASHBOARD.md) | UI layout spec |
-| [`SPEC.md`](SPEC.md) | Phase tracker |
-| [`pitch.md`](pitch.md) | CTO/CFO pitch deck |
+| [`docs/ui-spec.md`](docs/ui-spec.md) | UI layout specification |
