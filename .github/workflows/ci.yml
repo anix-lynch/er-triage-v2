@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-mock
+
+      - name: Lint check (syntax only)
+        run: |
+          python -m py_compile app/engine.py app/prompt.py app/guardrails.py \
+            app/memory.py app/streamlit_app.py \
+            app/retrieval/embed.py app/retrieval/store.py app/retrieval/search.py \
+            scripts/build_index.py scripts/eval.py scripts/gen_past_cases.py
+
+      - name: Run tests (no API calls — mocked)
+        env:
+          # Tests must not contact real services.
+          ANTHROPIC_API_KEY: "fake-key-for-tests"
+          USE_RAG: "false"
+        run: pytest tests/ -v --tb=short
+
+      - name: Verify eval reproduces published numbers
+        run: |
+          python scripts/eval.py
+          python -c "
+          import json
+          r = json.load(open('outputs/eval_report.json'))
+          assert r['rule_faithfulness_pct'] == 100.0, r
+          assert r['adversarial_escalation_pct'] == 100.0, r
+          print('✅ eval matches published numbers')
+          "
